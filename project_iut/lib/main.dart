@@ -2,13 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/core.dart';
 import 'core/providers/theme_provider.dart';
-import 'features/auth/screens/splash_screen.dart';
-import 'features/auth/screens/login_screen.dart';
-import 'features/auth/screens/registration_screen.dart';
-import 'features/auth/screens/otp_verification_screen.dart';
-import 'features/auth/screens/sign_up_screen.dart';
-import 'features/home/screens/main_app_screen.dart';
-import 'features/location/screens/location_input_screen.dart';
+import 'app_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,19 +57,7 @@ class DonorApp extends ConsumerWidget {
       themeMode: themeState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/registration': (context) => const RegistrationScreen(),
-        '/otp-verification': (context) {
-          final phoneNumber = ModalRoute.of(context)?.settings.arguments as String?;
-          return OtpVerificationScreen(phoneNumber: phoneNumber);
-        },
-        '/sign-up': (context) => const SignUpScreen(),
-        '/location': (context) => const LocationInputScreen(),
-        // TODO: Add main app routes
-        '/main': (context) => const MainAppScreen(),
-      },
+      routes: appRoutes,
     );
   }
 }
