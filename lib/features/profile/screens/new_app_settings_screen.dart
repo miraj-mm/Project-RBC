@@ -59,7 +59,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                     });
                     _showComingSoonDialog('Dark Mode');
                   },
-                  activeColor: AppColors.primaryRed,
+                  activeThumbColor: AppColors.primaryRed,
                 ),
               ),
               _buildSettingsTile(
@@ -104,7 +104,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                       _notificationsEnabled = value;
                     });
                   },
-                  activeColor: AppColors.primaryRed,
+                  activeThumbColor: AppColors.primaryRed,
                 ),
               ),
               if (_notificationsEnabled) ...[
@@ -120,7 +120,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                         _bloodRequestNotifications = value;
                       });
                     },
-                    activeColor: AppColors.primaryRed,
+                    activeThumbColor: AppColors.primaryRed,
                   ),
                 ),
                 _buildSettingsTile(
@@ -135,7 +135,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                         _donationReminders = value;
                       });
                     },
-                    activeColor: AppColors.primaryRed,
+                    activeThumbColor: AppColors.primaryRed,
                   ),
                 ),
                 _buildSettingsTile(
@@ -150,7 +150,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                         _emergencyAlerts = value;
                       });
                     },
-                    activeColor: AppColors.primaryRed,
+                    activeThumbColor: AppColors.primaryRed,
                   ),
                 ),
               ],
@@ -184,7 +184,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                       _locationTracking = value;
                     });
                   },
-                  activeColor: AppColors.primaryRed,
+                  activeThumbColor: AppColors.primaryRed,
                 ),
               ),
               _buildSettingsTile(

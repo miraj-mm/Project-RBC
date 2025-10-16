@@ -244,7 +244,7 @@ class _DonationConfirmationScreenState extends ConsumerState<DonationConfirmatio
                     ),
                     const SizedBox(height: AppSizes.paddingS),
                     DropdownButtonFormField<String>(
-                      value: _selectedLocation.isEmpty ? null : _selectedLocation,
+                      initialValue: _selectedLocation.isEmpty ? null : _selectedLocation,
                       onChanged: (value) {
                         setState(() {
                           _selectedLocation = value ?? '';

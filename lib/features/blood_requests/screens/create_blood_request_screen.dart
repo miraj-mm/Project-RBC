@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
-import '../../../core/services/supabase_service.dart';
 import '../providers/blood_request_provider.dart';
 
 class CreateBloodRequestScreen extends ConsumerStatefulWidget {
@@ -34,15 +33,23 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-    
     return Scaffold(
-      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.getBackgroundColor(context),
       appBar: AppBar(
-        title: const Text('Request Blood Donation'),
-        backgroundColor: AppColors.white,
-        foregroundColor: AppColors.textPrimary,
+        title: Text(
+          'Request Blood Donation',
+          style: TextStyle(
+            color: AppColors.getTextPrimaryColor(context),
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
+        backgroundColor: AppColors.getSurfaceColor(context),
+        foregroundColor: AppColors.getTextPrimaryColor(context),
+        iconTheme: IconThemeData(
+          color: AppColors.getTextPrimaryColor(context),
+        ),
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         actions: [
           TextButton(
@@ -144,22 +151,23 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Blood Group *',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textPrimary,
+                                color: AppColors.getTextPrimaryColor(context),
                               ),
                             ),
                             const SizedBox(height: AppSizes.paddingS),
                             DropdownButtonFormField<String>(
-                              value: _selectedBloodGroup,
+                              initialValue: _selectedBloodGroup,
                               onChanged: (value) {
                                 setState(() {
                                   _selectedBloodGroup = value!;
                                 });
                               },
+                              dropdownColor: AppColors.getCardBackgroundColor(context),
                               decoration: InputDecoration(
                                 prefixIcon: Icon(
                                   Icons.bloodtype,
@@ -167,7 +175,7 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(AppSizes.radiusS),
-                                  borderSide: const BorderSide(color: AppColors.inputBorder),
+                                  borderSide: BorderSide(color: AppColors.getBorderColor(context)),
                                 ),
                                 contentPadding: const EdgeInsets.all(AppSizes.paddingM),
                               ),
@@ -189,18 +197,18 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Units Required *',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textPrimary,
+                                color: AppColors.getTextPrimaryColor(context),
                               ),
                             ),
                             const SizedBox(height: AppSizes.paddingS),
                             Container(
                               decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.inputBorder),
+                                border: Border.all(color: AppColors.getBorderColor(context)),
                                 borderRadius: BorderRadius.circular(AppSizes.radiusS),
                               ),
                               child: Row(
@@ -218,9 +226,10 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                                     child: Text(
                                       '$_unitsRequired',
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
+                                        color: AppColors.getTextPrimaryColor(context),
                                       ),
                                     ),
                                   ),
@@ -245,12 +254,12 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                   const SizedBox(height: AppSizes.paddingM),
 
                   // Priority Level
-                  const Text(
+                  Text(
                     'Priority Level *',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
+                      color: AppColors.getTextPrimaryColor(context),
                     ),
                   ),
                   const SizedBox(height: AppSizes.paddingS),
@@ -369,12 +378,12 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                 icon: Icons.schedule,
                 children: [
                   // Required By Date
-                  const Text(
+                  Text(
                     'Required By Date *',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
+                      color: AppColors.getTextPrimaryColor(context),
                     ),
                   ),
                   const SizedBox(height: AppSizes.paddingS),
@@ -384,7 +393,7 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                       width: double.infinity,
                       padding: const EdgeInsets.all(AppSizes.paddingM),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.inputBorder),
+                        border: Border.all(color: AppColors.getBorderColor(context)),
                         borderRadius: BorderRadius.circular(AppSizes.radiusS),
                       ),
                       child: Row(
@@ -401,7 +410,7 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                                 : 'Select required date',
                             style: TextStyle(
                               color: _requiredByDate != null
-                                  ? AppColors.textPrimary
+                                  ? AppColors.getTextPrimaryColor(context)
                                   : AppColors.getTextSecondaryColor(context),
                               fontSize: 14,
                             ),
@@ -414,12 +423,12 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                   const SizedBox(height: AppSizes.paddingM),
 
                   // Required By Time
-                  const Text(
+                  Text(
                     'Required By Time (Optional)',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textPrimary,
+                      color: AppColors.getTextPrimaryColor(context),
                     ),
                   ),
                   const SizedBox(height: AppSizes.paddingS),
@@ -429,7 +438,7 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                       width: double.infinity,
                       padding: const EdgeInsets.all(AppSizes.paddingM),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.inputBorder),
+                        border: Border.all(color: AppColors.getBorderColor(context)),
                         borderRadius: BorderRadius.circular(AppSizes.radiusS),
                       ),
                       child: Row(
@@ -446,7 +455,7 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                                 : 'Select preferred time',
                             style: TextStyle(
                               color: _requiredByTime != null
-                                  ? AppColors.textPrimary
+                                  ? AppColors.getTextPrimaryColor(context)
                                   : AppColors.getTextSecondaryColor(context),
                               fontSize: 14,
                             ),
@@ -483,11 +492,12 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                         _isNgoRequest = value ?? false;
                       });
                     },
-                    title: const Text(
+                    title: Text(
                       'This is an NGO request',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
+                        color: AppColors.getTextPrimaryColor(context),
                       ),
                     ),
                     subtitle: Text(
@@ -599,7 +609,7 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
       width: double.infinity,
       padding: const EdgeInsets.all(AppSizes.paddingM),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: AppColors.getCardBackgroundColor(context),
         borderRadius: BorderRadius.circular(AppSizes.radiusM),
         boxShadow: [
           BoxShadow(
@@ -622,10 +632,10 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
               const SizedBox(width: AppSizes.paddingS),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: AppColors.getTextPrimaryColor(context),
                 ),
               ),
             ],
@@ -651,10 +661,10 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppColors.textPrimary,
+            color: AppColors.getTextPrimaryColor(context),
           ),
         ),
         const SizedBox(height: AppSizes.paddingS),
@@ -663,15 +673,25 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
           keyboardType: keyboardType,
           validator: validator,
           maxLines: maxLines,
+          style: TextStyle(color: AppColors.getTextPrimaryColor(context)),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: TextStyle(color: AppColors.getTextSecondaryColor(context)),
             prefixIcon: Icon(
               icon,
               color: AppColors.getTextSecondaryColor(context),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppSizes.radiusS),
-              borderSide: const BorderSide(color: AppColors.inputBorder),
+              borderSide: BorderSide(color: AppColors.getBorderColor(context)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              borderSide: BorderSide(color: AppColors.getBorderColor(context)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              borderSide: const BorderSide(color: AppColors.primaryRed, width: 2),
             ),
             contentPadding: const EdgeInsets.all(AppSizes.paddingM),
           ),

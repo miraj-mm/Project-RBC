@@ -225,7 +225,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         // Gender Dropdown
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: _selectedGender,
+                            initialValue: _selectedGender,
                             style: TextStyle(
                               color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                             ),
@@ -308,7 +308,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     
                     // Blood Group Dropdown
                     DropdownButtonFormField<String>(
-                      value: _selectedBloodGroup,
+                      initialValue: _selectedBloodGroup,
                       style: TextStyle(
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),

@@ -89,5 +89,5 @@ APP_VERSION=1.0.0
 lib/
 ├── core/                # Core application logic
 ├── features/            # Feature-based modules
-└── shared/              # Shared widgets and utilities
+└── services/            # Services widgets and utilities
 ```

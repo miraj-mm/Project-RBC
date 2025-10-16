@@ -38,7 +38,7 @@ class MyActivitiesScreen extends ConsumerWidget {
             // History List
             ..._getSampleDonations().map((donation) => 
               _buildDonationHistoryCard(donation)
-            ).toList(),
+            ),
             
             const SizedBox(height: AppSizes.paddingL),
             

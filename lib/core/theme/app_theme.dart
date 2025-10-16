@@ -236,12 +236,10 @@ class AppTheme {
         primary: AppColors.primaryRed,
         secondary: AppColors.lightRed,
         surface: AppColors.darkSurface,
-        background: AppColors.darkBackground,
         error: AppColors.error,
         onPrimary: AppColors.white,
         onSecondary: AppColors.white,
         onSurface: AppColors.darkTextPrimary,
-        onBackground: AppColors.darkTextPrimary,
         onError: AppColors.white,
       ),
       

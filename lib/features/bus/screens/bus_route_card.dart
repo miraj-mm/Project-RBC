@@ -11,18 +11,19 @@ class BusRouteCard extends StatelessWidget {
   final IconData icon;
 
   const BusRouteCard({
-    Key? key,
+    super.key,
     required this.busName,
     required this.status,
     required this.nearestStation,
     required this.onViewMap,
     required this.color,
     required this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: AppColors.getCardBackgroundColor(context),
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
       child: Container(
@@ -34,13 +35,23 @@ class BusRouteCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(icon, color: color, size: 48),
-            Text(busName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(
+              busName,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: AppColors.getTextPrimaryColor(context),
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.circle, color: status == 'Running' ? Colors.green : Colors.grey, size: 14),
                 const SizedBox(width: 6),
-                Text(status, style: const TextStyle(fontSize: 14)),
+                Text(
+                  status,
+                  style: TextStyle(fontSize: 14, color: AppColors.getTextSecondaryColor(context)),
+                ),
               ],
             ),
             Row(
@@ -50,7 +61,7 @@ class BusRouteCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text('Nearest: $nearestStation', 
-                    style: const TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 12, color: AppColors.getTextSecondaryColor(context)),
                     textAlign: TextAlign.center,
                   ),
                 ),

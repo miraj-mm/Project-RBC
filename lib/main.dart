@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/core.dart';
 import 'core/providers/theme_provider.dart';
 import 'app_routes.dart';
+
+// Replace these with your Supabase URL and anon key
+const String SUPABASE_URL = 'https://egemeiipwqxsebikavow.supabase.co';
+const String SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVnZW1laWlwd3F4c2ViaWthdm93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxMDUxNTgsImV4cCI6MjA3NTY4MTE1OH0.TznGitJ1yv_nEHhNNIfttPeDBv9cUx7OCwVZpaXaYSY';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +17,10 @@ void main() async {
     await AppConfig.initialize();
     
     // Initialize Supabase
-    await SupabaseService.initialize();
+    await Supabase.initialize(
+      url: SUPABASE_URL,
+      anonKey: SUPABASE_ANON_KEY,
+    );
     
     runApp(const ProviderScope(child: DonorApp()));
   } catch (e) {
