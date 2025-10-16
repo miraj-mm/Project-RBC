@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/core.dart';
@@ -520,10 +522,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         await Future.delayed(const Duration(seconds: 2)); // Simulate API call
         
         if (mounted) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            '/location',
-            (route) => false,
-          );
+          context.go(AppRoutes.location);
         }
       } catch (e) {
         if (mounted) {
@@ -544,3 +543,5 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     }
   }
 }
+
+

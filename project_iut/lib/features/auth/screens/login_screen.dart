@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../app_router.dart';
 import '../../../core/core.dart';
 
 
@@ -217,7 +219,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pushNamed('/registration');
+                            context.push(AppRoutes.registration);
                           },
                           child: const Text(
                             AppStrings.signUp,
@@ -249,7 +251,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await Future.delayed(const Duration(seconds: 2)); // Simulate API call
         
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/main');
+          context.go(AppRoutes.main);
         }
       } catch (e) {
         if (mounted) {
@@ -270,3 +272,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 }
+

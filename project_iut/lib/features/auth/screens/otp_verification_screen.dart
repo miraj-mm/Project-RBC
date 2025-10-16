@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../core/core.dart';
@@ -193,7 +195,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         await Future.delayed(const Duration(seconds: 2)); // Simulate API call
         
         if (mounted) {
-          Navigator.of(context).pushNamed('/sign-up');
+          context.push(AppRoutes.signUp);
         }
       } catch (e) {
         if (mounted) {
@@ -239,3 +241,4 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     }
   }
 }
+

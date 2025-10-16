@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
 
@@ -44,7 +46,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // Navigate to login screen after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/login');
+        context.go(AppRoutes.login);
       }
     });
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
@@ -150,10 +152,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
         await Future.delayed(const Duration(seconds: 2)); // Simulate API call
         
         if (mounted) {
-          Navigator.of(context).pushNamed(
-            '/otp-verification',
-            arguments: _mobileController.text,
-          );
+          context.push(AppRoutes.otpVerification, extra: _mobileController.text);
         }
       } catch (e) {
         if (mounted) {
@@ -174,3 +173,4 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     }
   }
 }
+
