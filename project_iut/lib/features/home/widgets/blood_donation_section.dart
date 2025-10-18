@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import '../../../app_router.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/hover_button.dart';
+import '../../blood_requests/screens/blood_requests_screen.dart';
+import '../../blood_requests/screens/create_blood_request_screen.dart';
 
 class BloodDonationSection extends StatelessWidget {
   final int normalRequests;
@@ -62,7 +62,12 @@ class BloodDonationSection extends StatelessWidget {
               baseColor: AppColors.primaryRed,
               hoverColor: AppColors.primaryRed.withOpacity(0.9),
               onPressed: () {
-                context.push(AppRoutes.bloodRequests);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BloodRequestsScreen(),
+                  ),
+                );
               },
               padding: const EdgeInsets.all(AppSizes.paddingM),
               borderRadius: BorderRadius.circular(AppSizes.radiusS),
@@ -110,7 +115,12 @@ class BloodDonationSection extends StatelessWidget {
               baseColor: AppColors.getCardBackgroundColor(context),
               hoverColor: AppColors.primaryRed.withOpacity(0.05),
               onPressed: () {
-                context.push(AppRoutes.createBloodRequest);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CreateBloodRequestScreen(),
+                  ),
+                );
               },
               padding: const EdgeInsets.all(AppSizes.paddingM),
               borderRadius: BorderRadius.circular(AppSizes.radiusS),
