@@ -43,10 +43,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     _controller.forward();
     
-    // Navigate to login screen after 3 seconds
+    // Check authentication and navigate accordingly after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        context.go(AppRoutes.login);
+        // Check if user is authenticated
+        final isAuthenticated = SupabaseService.currentUser != null;
+        
+        if (isAuthenticated) {
+          // User is logged in, go to main screen
+          context.go(AppRoutes.main);
+        } else {
+          // User is not logged in, go to login screen
+          context.go(AppRoutes.login);
+        }
       }
     });
   }

@@ -5,10 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
+import '../providers/auth_provider.dart';
 
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
-  final String? phoneNumber;
+  final String? phoneNumber; // This will now contain email
   
   const OtpVerificationScreen({
     super.key,
@@ -63,7 +64,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 key: _formKey,
                 child: PinCodeTextField(
                   appContext: context,
-                  length: 4,
+                  length: 6,
                   controller: _otpController,
                   animationType: AnimationType.fade,
                   pinTheme: PinTheme(
@@ -94,8 +95,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter OTP';
                     }
-                    if (value.length != 4) {
-                      return 'Please enter 4 digit OTP';
+                    if (value.length != 6) {
+                      return 'Please enter 6 digit OTP';
                     }
                     return null;
                   },
@@ -128,7 +129,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               
               // Proceed Button
               ElevatedButton(
-                onPressed: (_isLoading || _otpCode.length != 4) ? null : _handleVerifyOTP,
+                onPressed: (_isLoading || _otpCode.length != 6) ? null : _handleVerifyOTP,
                 child: _isLoading
                     ? const SizedBox(
                         height: 20,
@@ -191,13 +192,31 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       });
 
       try {
-        // TODO: Implement OTP verification logic
-        await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+        print('🔐 Verifying OTP for: ${widget.phoneNumber}');
+        
+        // Verify OTP with email
+        await ref.read(authStateProvider.notifier).verifyOtp(
+          phone: widget.phoneNumber ?? '', // This is actually the email
+          token: _otpCode,
+        );
+        
+        print('✅ OTP verified! User is now authenticated');
+        
+        // DO NOT sign out - we need the authenticated session for profile creation
+        // await ref.read(authStateProvider.notifier).signOut(); // REMOVED
         
         if (mounted) {
-          context.push(AppRoutes.signUp);
+          // Schedule navigation for next frame to avoid disposal issues
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              print('📝 Navigating to sign-up page...');
+              // Pass the verified email to sign-up page
+              context.push(AppRoutes.signUp, extra: widget.phoneNumber);
+            }
+          });
         }
       } catch (e) {
+        print('❌ OTP verification failed: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -218,8 +237,10 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
   void _handleResendOTP() async {
     try {
-      // TODO: Implement resend OTP logic
-      await Future.delayed(const Duration(seconds: 1)); // Simulate API call
+      // Resend OTP to email
+      await ref.read(authStateProvider.notifier).signInWithPhone(
+        phone: widget.phoneNumber ?? '', // This is actually the email
+      );
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

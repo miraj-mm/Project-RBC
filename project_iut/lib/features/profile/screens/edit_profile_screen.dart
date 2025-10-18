@@ -215,7 +215,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     ),
                     const SizedBox(height: AppSizes.paddingS),
                     DropdownButtonFormField<String>(
-                      value: _selectedBloodGroup,
+                      initialValue: _selectedBloodGroup,
                       onChanged: (value) {
                         setState(() {
                           _selectedBloodGroup = value!;
@@ -262,7 +262,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     ),
                     const SizedBox(height: AppSizes.paddingS),
                     DropdownButtonFormField<String>(
-                      value: _selectedGender,
+                      initialValue: _selectedGender,
                       onChanged: (value) {
                         setState(() {
                           _selectedGender = value!;

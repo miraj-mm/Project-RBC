@@ -5,12 +5,14 @@ A comprehensive Flutter application for blood donation management and bus route 
 ## Features
 
 ### ✅ Completed Features
-- **Authentication Flow**: Login, Registration, OTP Verification, Sign Up
-- **User Management**: Profile creation and management  
+- **Authentication Flow**: Email-based login with @iut-dhaka.edu validation, OTP verification, and sign-up
+- **Profile Pictures**: Optional profile picture upload during sign-up (camera/gallery support)
+- **User Management**: Complete profile creation with duplicate email prevention
 - **Location Services**: Current location detection and input
-- **Modern UI**: Red-themed design matching Figma specifications
+- **Modern UI**: Red-themed design matching Figma specifications with dark mode support
 - **State Management**: Riverpod for state management
 - **Database Integration**: Supabase for backend services
+- **Storage**: Supabase Storage for profile pictures
 
 ### 🔄 In Development
 - Blood donation request system
@@ -51,6 +53,10 @@ A comprehensive Flutter application for blood donation management and bus route 
 3. **Setup Supabase**
    - Create a new project on [Supabase](https://supabase.com)
    - Go to Settings → API to get your credentials
+   - **Database Setup**: Run `DATABASE_SETUP.sql` in Supabase SQL Editor
+   - **Storage Setup**: 
+     - Create storage bucket named `profile-pictures` (see `PROFILE_PICTURE_SETUP.md`)
+     - Run `SETUP_PROFILE_PICTURES_STORAGE.sql` for policies
 
 4. **Environment Configuration**
    - Copy `.env.example` to `.env`

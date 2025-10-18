@@ -56,7 +56,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                 onChanged: (value) {
                   ref.read(themeProvider.notifier).toggleTheme();
                 },
-                activeColor: AppColors.primaryRed,
+                activeThumbColor: AppColors.primaryRed,
               ),
             ),
             _buildSettingsItem(
@@ -96,7 +96,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                     _notificationsEnabled = value;
                   });
                 },
-                activeColor: AppColors.primaryRed,
+                activeThumbColor: AppColors.primaryRed,
               ),
             ),
             
@@ -114,7 +114,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                       _bloodRequestNotifications = value;
                     });
                   },
-                  activeColor: AppColors.primaryRed,
+                  activeThumbColor: AppColors.primaryRed,
                 ),
               ),
               _buildSettingsItem(
@@ -130,7 +130,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                       _donationReminders = value;
                     });
                   },
-                  activeColor: AppColors.primaryRed,
+                  activeThumbColor: AppColors.primaryRed,
                 ),
               ),
               _buildSettingsItem(
@@ -146,7 +146,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                       _emergencyAlerts = value;
                     });
                   },
-                  activeColor: AppColors.primaryRed,
+                  activeThumbColor: AppColors.primaryRed,
                 ),
               ),
             ],
@@ -179,7 +179,7 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
                     _locationTracking = value;
                   });
                 },
-                activeColor: AppColors.primaryRed,
+                activeThumbColor: AppColors.primaryRed,
               ),
             ),
             _buildSettingsItem(

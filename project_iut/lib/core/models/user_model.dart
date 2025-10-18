@@ -54,16 +54,16 @@ class UserModel {
       'id': id,
       'name': name,
       'email': email,
-      'phone': phone,
-      'gender': gender,
-      'age': age,
-      'blood_group': bloodGroup,
-      'last_donation_date': lastDonationDate?.toIso8601String(),
-      'profile_picture_url': profilePictureUrl,
+      if (phone != null) 'phone': phone,
+      if (gender != null) 'gender': gender,
+      if (age != null) 'age': age,
+      if (bloodGroup != null) 'blood_group': bloodGroup,
+      if (lastDonationDate != null) 'last_donation_date': lastDonationDate!.toIso8601String(),
+      if (profilePictureUrl != null) 'profile_picture_url': profilePictureUrl,
       'lives_saved': livesSaved,
-      'is_active': isActive,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      // Note: is_active field removed from schema
     };
   }
 

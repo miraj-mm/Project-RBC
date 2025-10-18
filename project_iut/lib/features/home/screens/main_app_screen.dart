@@ -27,45 +27,58 @@ class _MainAppScreenState extends ConsumerState<MainAppScreen> {
     if (_currentIndex >= _screens.length) {
       _currentIndex = 0;
     }
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.primaryRed,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(AppSizes.radiusL),
-            topRight: Radius.circular(AppSizes.radiusL),
-          ),
+    
+    // Handle back button - on back press, go to home tab if not already there
+    return PopScope(
+      canPop: _currentIndex == 0, // Allow pop only if on home tab
+      onPopInvoked: (didPop) {
+        if (!didPop && _currentIndex != 0) {
+          // If we didn't pop and not on home, switch to home tab
+          setState(() {
+            _currentIndex = 0;
+          });
+        }
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          selectedItemColor: AppColors.white,
-          unselectedItemColor: AppColors.lightRed,
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+        bottomNavigationBar: Container(
+          decoration: const BoxDecoration(
+            color: AppColors.primaryRed,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(AppSizes.radiusL),
+              topRight: Radius.circular(AppSizes.radiusL),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.notifications),
-              label: 'Notifications',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent,
+            selectedItemColor: AppColors.white,
+            unselectedItemColor: AppColors.lightRed,
+            elevation: 0,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.notifications),
+                label: 'Notifications',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+          ),
         ),
       ),
     );

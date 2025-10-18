@@ -70,6 +70,7 @@ dependencies:
   
   # Image handling
   cached_network_image: ^3.3.0
+  image_picker: ^1.0.7
   
   # Location services
   geolocator: ^10.1.0

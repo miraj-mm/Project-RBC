@@ -4,7 +4,7 @@ import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
 
 class BusRouteInfoScreen extends StatefulWidget {
-  const BusRouteInfoScreen({Key? key}) : super(key: key);
+  const BusRouteInfoScreen({super.key});
 
   @override
   State<BusRouteInfoScreen> createState() => _BusRouteInfoScreenState();

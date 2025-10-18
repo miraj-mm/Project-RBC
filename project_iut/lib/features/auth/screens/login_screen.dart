@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app_router.dart';
 import '../../../core/core.dart';
+import '../providers/auth_provider.dart';
 
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -14,14 +15,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _mobileController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _mobileController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -31,9 +32,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     
-    return Scaffold(
-      backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
-      body: SafeArea(
+    return PopScope(
+      canPop: false, // Prevent accidental back navigation from login
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          // Show confirmation dialog before exiting
+          _showExitConfirmation(context);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
+        body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSizes.paddingL),
           child: Column(
@@ -76,18 +85,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Mobile Number Field
+                    // Email Field (Phone login disabled in Supabase)
                     TextFormField(
-                      controller: _mobileController,
-                      keyboardType: TextInputType.phone,
+                      controller: _identifierController,
+                      keyboardType: TextInputType.emailAddress,
                       style: TextStyle(
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.mobile,
-                        hintText: 'Enter Your Mobile Number',
+                        labelText: 'IUT Email',
+                        hintText: 'Enter your @iut-dhaka.edu email',
                         prefixIcon: Icon(
-                          Icons.phone,
+                          Icons.email,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                         ),
                         labelStyle: TextStyle(
@@ -99,10 +108,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please Enter Your Mobile Number';
+                          return 'Please enter your IUT email';
                         }
-                        if (value.length < 10) {
-                          return 'Please Enter a Valid Mobile Number';
+                        final v = value.trim();
+                        if (!v.toLowerCase().endsWith('@iut-dhaka.edu')) {
+                          return 'Please use your IUT email (@iut-dhaka.edu)';
                         }
                         return null;
                       },
@@ -162,7 +172,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          // Navigate to forgot password screen
+                          context.push(AppRoutes.forgotPassword);
                         },
                         child: RichText(
                           text: TextSpan(
@@ -237,6 +247,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
+      ),
+    );
+  }
+
+  void _showExitConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Exit App?'),
+        content: const Text('Do you want to exit the application?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // On web, we can't actually close the tab, but we can show a message
+              // On mobile, this would exit the app
+            },
+            child: const Text(
+              'Exit',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -247,18 +285,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
 
       try {
-        // TODO: Implement login logic with your authentication provider
-        await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+        print('🔐 Attempting login with: ${_identifierController.text.trim()}');
+        
+        await ref.read(authStateProvider.notifier).signInWithEmailOrPhone(
+          identifier: _identifierController.text.trim(),
+          password: _passwordController.text,
+        );
+        
+        print('✅ Login successful, navigating to main...');
         
         if (mounted) {
+          // Use replace to prevent back navigation to login
           context.go(AppRoutes.main);
         }
       } catch (e) {
+        print('❌ Login error: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Login failed: ${e.toString()}'),
               backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 5),
             ),
           );
         }

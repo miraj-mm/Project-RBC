@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
-import '../../../core/services/supabase_service.dart';
 import '../providers/blood_request_provider.dart';
 
 class CreateBloodRequestScreen extends ConsumerStatefulWidget {
@@ -162,7 +161,7 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
                             ),
                             const SizedBox(height: AppSizes.paddingS),
                             DropdownButtonFormField<String>(
-                              value: _selectedBloodGroup,
+                              initialValue: _selectedBloodGroup,
                               onChanged: (value) {
                                 setState(() {
                                   _selectedBloodGroup = value!;

@@ -16,11 +16,11 @@ class _LocationInputScreenState extends ConsumerState<LocationInputScreen> {
   final _formKey = GlobalKey<FormState>();
   final _locationController = TextEditingController();
   final _focusNode = FocusNode();
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool _isGettingLocation = false;
-  bool _isValidating = false;
+  final bool _isValidating = false;
   bool _showSuggestions = false;
-  List<dynamic> _suggestions = [];
+  final List<dynamic> _suggestions = [];
   dynamic _validationResult;
   String _googleMapsLink = '';
   Timer? _debounceTimer;

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app_router.dart';
 import '../../../core/core.dart';
 import 'edit_profile_screen.dart';
 import '../../../core/widgets/app_top_bar.dart';
@@ -537,13 +539,48 @@ class ProfileScreen extends ConsumerWidget {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(authStateProvider.notifier).signOut();
+            onPressed: () async {
+              // Store context reference before async operations
+              final navigator = Navigator.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final goRouter = GoRouter.of(context);
+              
+              // Close the confirmation dialog first
+              navigator.pop();
+              
+              try {
+                debugPrint('🚪 ProfileScreen: Logout initiated');
+                
+                // Sign out the user
+                await ref.read(authStateProvider.notifier).signOut();
+                debugPrint('✅ ProfileScreen: Sign out complete');
+                
+                // Wait a bit for auth state to propagate
+                await Future.delayed(const Duration(milliseconds: 200));
+                
+                // Navigate to login - force replace the entire stack
+                debugPrint('🔄 ProfileScreen: Navigating to login');
+                goRouter.go(AppRoutes.login);
+                
+              } catch (e) {
+                debugPrint('❌ ProfileScreen: Logout error: $e');
+                
+                // Show error message
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Logout failed: ${e.toString()}'),
+                    backgroundColor: AppColors.error,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              }
             },
             child: const Text(
               'Logout',
-              style: TextStyle(color: AppColors.primaryRed),
+              style: TextStyle(
+                color: AppColors.primaryRed,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

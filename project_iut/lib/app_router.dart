@@ -5,6 +5,7 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/registration_screen.dart';
 import 'features/auth/screens/otp_verification_screen.dart';
 import 'features/auth/screens/sign_up_screen.dart';
+import 'features/auth/screens/forgot_password_screen.dart';
 import 'features/home/screens/main_app_screen.dart';
 import 'features/location/screens/location_input_screen.dart';
 import 'features/blood_requests/screens/create_blood_request_screen.dart';
@@ -14,6 +15,18 @@ import 'features/profile/screens/profile_screen.dart';
 import 'features/bus/screens/bus_route_info_screen.dart';
 import 'core/services/supabase_service.dart';
 
+/// Auth state notifier for router refresh
+class AuthStateNotifier extends ChangeNotifier {
+  AuthStateNotifier() {
+    // Listen to Supabase auth state changes
+    SupabaseService.instance.auth.onAuthStateChange.listen((data) {
+      debugPrint('🔔 AuthStateNotifier: Auth state changed - ${data.event}');
+      debugPrint('   User: ${data.session?.user.email ?? "null"}');
+      notifyListeners();
+    });
+  }
+}
+
 /// Route names as constants for type safety
 class AppRoutes {
   // Auth routes
@@ -22,6 +35,7 @@ class AppRoutes {
   static const String registration = '/registration';
   static const String otpVerification = '/otp-verification';
   static const String signUp = '/sign-up';
+  static const String forgotPassword = '/forgot-password';
   
   // Location
   static const String location = '/location';
@@ -42,34 +56,54 @@ class AppRoutes {
 }
 
 /// GoRouter configuration
+final _authStateNotifier = AuthStateNotifier();
+
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
   debugLogDiagnostics: true,
+  refreshListenable: _authStateNotifier, // Refresh router when auth state changes
   
   // Redirect logic for authentication
   redirect: (BuildContext context, GoRouterState state) {
     final isAuthenticated = SupabaseService.currentUser != null;
-    final isAuthRoute = state.matchedLocation == AppRoutes.login ||
-        state.matchedLocation == AppRoutes.registration ||
-        state.matchedLocation == AppRoutes.signUp ||
-        state.matchedLocation == AppRoutes.otpVerification;
-    final isSplash = state.matchedLocation == AppRoutes.splash;
+    final currentPath = state.matchedLocation;
+    
+    // Define route categories
+    final isAuthRoute = currentPath == AppRoutes.login ||
+        currentPath == AppRoutes.registration ||
+        currentPath == AppRoutes.otpVerification ||
+        currentPath == AppRoutes.forgotPassword;
+    final isSignUpRoute = currentPath == AppRoutes.signUp;
+    final isSplash = currentPath == AppRoutes.splash;
+    final isPublicRoute = isSplash || isAuthRoute;
 
-    // Allow splash screen
+    debugPrint('🔀 Router redirect check:');
+    debugPrint('   Path: $currentPath');
+    debugPrint('   Authenticated: $isAuthenticated');
+
+    // Allow splash screen always
     if (isSplash) {
       return null;
     }
 
+    // Allow sign-up route for authenticated users (during profile completion)
+    if (isSignUpRoute) {
+      return null;
+    }
+
     // If not authenticated and trying to access protected route, redirect to login
-    if (!isAuthenticated && !isAuthRoute) {
+    if (!isAuthenticated && !isPublicRoute) {
+      debugPrint('   ❌ Not authenticated, redirecting to login');
       return AppRoutes.login;
     }
 
-    // If authenticated and on auth route, redirect to main
+    // If authenticated and on auth routes (except sign-up), redirect to main
     if (isAuthenticated && isAuthRoute) {
+      debugPrint('   ✅ Authenticated on auth route, redirecting to main');
       return AppRoutes.main;
     }
 
+    debugPrint('   ✅ No redirect needed');
     return null; // No redirect
   },
 
@@ -106,7 +140,16 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.signUp,
       name: 'sign-up',
-      builder: (context, state) => const SignUpScreen(),
+      builder: (context, state) {
+        final verifiedEmail = state.extra as String?;
+        return SignUpScreen(verifiedEmail: verifiedEmail);
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.forgotPassword,
+      name: 'forgot-password',
+      builder: (context, state) => const ForgotPasswordScreen(),
     ),
 
     // Location

@@ -1,13 +1,18 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
+import '../providers/auth_provider.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
-  const SignUpScreen({super.key});
+  final String? verifiedEmail; // Email from OTP verification
+  
+  const SignUpScreen({super.key, this.verifiedEmail});
 
   @override
   ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
@@ -28,11 +33,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   String? _selectedGender;
   String? _selectedBloodGroup;
   DateTime? _lastDonationDate;
+  File? _profileImage;
+  final ImagePicker _imagePicker = ImagePicker();
 
   final List<String> _genders = ['Male', 'Female', 'Other'];
   final List<String> _bloodGroups = [
     'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill email if provided from OTP verification
+    if (widget.verifiedEmail != null) {
+      _emailController.text = widget.verifiedEmail!;
+    }
+  }
 
   @override
   void dispose() {
@@ -69,6 +85,76 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               ),
               
               const SizedBox(height: AppSizes.paddingXL),
+              
+              // Profile Picture Section (Optional)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppSizes.paddingL),
+                decoration: BoxDecoration(
+                  color: isDarkMode ? AppColors.darkCard : AppColors.white,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusM),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.grey.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
+                          backgroundImage: _profileImage != null 
+                              ? FileImage(_profileImage!)
+                              : null,
+                          child: _profileImage == null
+                              ? Icon(
+                                  Icons.person,
+                                  color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                                  size: 50,
+                                )
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: _showImageSourceDialog,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: AppColors.primaryRed,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: AppColors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSizes.paddingM),
+                    Text(
+                      _profileImage == null 
+                          ? 'Add Profile Picture (Optional)'
+                          : 'Change Profile Picture',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: AppSizes.paddingL),
               
               // Sign Up Form
               Form(
@@ -187,12 +273,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     
                     const SizedBox(height: AppSizes.paddingM),
                     
-                    // Email Field
+                    // Email Field (Read-only if verified)
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
+                      readOnly: widget.verifiedEmail != null, // Make read-only if verified
                       style: TextStyle(
-                        color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                        color: widget.verifiedEmail != null 
+                          ? (isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary)
+                          : (isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary),
                       ),
                       decoration: InputDecoration(
                         labelText: AppStrings.emailId,
@@ -207,12 +296,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         hintStyle: TextStyle(
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                         ),
+                        filled: widget.verifiedEmail != null, // Grey background if verified
+                        fillColor: widget.verifiedEmail != null 
+                          ? (isDarkMode ? AppColors.darkBorder.withOpacity(0.3) : Colors.grey[200])
+                          : null,
+                        suffixIcon: widget.verifiedEmail != null 
+                          ? const Icon(Icons.check_circle, color: AppColors.success)
+                          : null,
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        if (!value.toLowerCase().endsWith('@iut-dhaka.edu')) {
+                          return 'Please use your IUT email (@iut-dhaka.edu)';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@iut-dhaka\.edu$').hasMatch(value.toLowerCase())) {
                           return 'Please enter a valid email';
                         }
                         return null;
@@ -227,7 +326,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         // Gender Dropdown
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: _selectedGender,
+                            initialValue: _selectedGender,
                             style: TextStyle(
                               color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                             ),
@@ -310,7 +409,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     
                     // Blood Group Dropdown
                     DropdownButtonFormField<String>(
-                      value: _selectedBloodGroup,
+                      initialValue: _selectedBloodGroup,
                       style: TextStyle(
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
@@ -511,6 +610,107 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     }
   }
 
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take Photo'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+            if (_profileImage != null)
+              ListTile(
+                leading: const Icon(Icons.delete, color: AppColors.error),
+                title: const Text('Remove Photo', style: TextStyle(color: AppColors.error)),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _profileImage = null;
+                  });
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.cancel),
+              title: const Text('Cancel'),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _profileImage = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<String?> _uploadProfilePicture(String userId) async {
+    if (_profileImage == null) return null;
+
+    try {
+      final fileName = 'profile_$userId.jpg';
+      final filePath = '$userId/$fileName';
+
+      // Read file as bytes
+      final fileBytes = await _profileImage!.readAsBytes();
+
+      // Upload to Supabase Storage (will overwrite if exists)
+      await SupabaseService.storage
+          .from('profile-pictures')
+          .uploadBinary(
+            filePath,
+            fileBytes,
+          );
+
+      // Get public URL
+      final publicUrl = SupabaseService.storage
+          .from('profile-pictures')
+          .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (e) {
+      debugPrint('Error uploading profile picture: $e');
+      rethrow;
+    }
+  }
+
   void _handleSignUp() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
@@ -518,11 +718,61 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       });
 
       try {
-        // TODO: Implement sign up logic
-        await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+        // First create the auth account to get the user ID
+        final email = _emailController.text.trim();
+        final password = _passwordController.text;
+        
+        // Get current user (who was authenticated via OTP)
+        final currentUser = SupabaseService.currentUser;
+        if (currentUser == null) {
+          throw Exception('No authenticated user found');
+        }
+
+        // Upload profile picture if selected
+        String? profilePictureUrl;
+        if (_profileImage != null) {
+          try {
+            profilePictureUrl = await _uploadProfilePicture(currentUser.id);
+            debugPrint('✅ Profile picture uploaded: $profilePictureUrl');
+          } catch (e) {
+            debugPrint('⚠️ Failed to upload profile picture: $e');
+            // Continue even if upload fails
+          }
+        }
+
+        // Prepare user data with profile picture URL
+        final userData = {
+          'name': _nameController.text.trim(),
+          'phone': _mobileController.text.trim(),
+          'age': int.parse(_ageController.text),
+          'gender': _selectedGender,
+          'blood_group': _selectedBloodGroup,
+          'last_donation_date': _lastDonationDate?.toIso8601String(),
+          if (profilePictureUrl != null) 'profile_picture_url': profilePictureUrl,
+        };
+
+        // Sign up with email and password (this will create the DB entry)
+        await ref.read(authStateProvider.notifier).signUpWithEmailPassword(
+          email: email,
+          password: password,
+          userData: userData,
+        );
+        
+        // Sign out to force user to login with credentials
+        await ref.read(authStateProvider.notifier).signOut();
         
         if (mounted) {
-          context.go(AppRoutes.location);
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account created successfully! Please login with your credentials.'),
+              backgroundColor: AppColors.success,
+              duration: Duration(seconds: 5),
+            ),
+          );
+          
+          // Navigate to login
+          context.go(AppRoutes.login);
         }
       } catch (e) {
         if (mounted) {
