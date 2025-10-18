@@ -37,13 +37,13 @@ class BloodRequestNotifier extends StateNotifier<BloodRequestState> {
   Future<void> _loadBloodRequests() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final response = await SupabaseService.from('blood_requests')
-          .select()
-          .order('created_at', ascending: false);
+    final response = await SupabaseService.from('blood_requests')
+      .select('id, requester_id, requester_name, requester_phone, patient_name, blood_group, units_needed, urgency, hospital_name, hospital_address, location_lat, location_lng, needed_by, additional_notes, status, created_at, updated_at')
+      .order('created_at', ascending: false);
 
-      final requests = (response as List<dynamic>)
-          .map((e) => BloodRequestModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+    final requests = (response as List<dynamic>)
+      .map((e) => BloodRequestModel.fromJson(e as Map<String, dynamic>))
+      .toList();
 
       state = state.copyWith(requests: requests, isLoading: false);
     } catch (e) {
@@ -56,10 +56,10 @@ class BloodRequestNotifier extends StateNotifier<BloodRequestState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       // Insert and return created row
-      final inserted = await SupabaseService.from('blood_requests')
-          .insert(request.toJson())
-          .select()
-          .single();
+    final inserted = await SupabaseService.from('blood_requests')
+      .insert(request.toJsonForInsert())
+      .select()
+      .single();
 
   final created = BloodRequestModel.fromJson(inserted);
 

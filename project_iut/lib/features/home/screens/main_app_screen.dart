@@ -4,6 +4,8 @@ import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import 'home_screen.dart';
 import '../../profile/screens/profile_screen.dart';
+import '../../notifications/screens/notifications_screen.dart';
+import '../../notifications/providers/notification_provider.dart';
 
 class MainAppScreen extends ConsumerStatefulWidget {
   const MainAppScreen({super.key});
@@ -17,7 +19,7 @@ class _MainAppScreenState extends ConsumerState<MainAppScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const PlaceholderScreen(title: 'Notifications', icon: Icons.notifications),
+    const NotificationsScreen(),
     const ProfileScreen(),
   ];
 
@@ -27,6 +29,9 @@ class _MainAppScreenState extends ConsumerState<MainAppScreen> {
     if (_currentIndex >= _screens.length) {
       _currentIndex = 0;
     }
+
+    // Get unread notification count
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
     
     // Handle back button - on back press, go to home tab if not already there
     return PopScope(
@@ -64,16 +69,16 @@ class _MainAppScreenState extends ConsumerState<MainAppScreen> {
             selectedItemColor: AppColors.white,
             unselectedItemColor: AppColors.lightRed,
             elevation: 0,
-            items: const [
-              BottomNavigationBarItem(
+            items: [
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.home),
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.notifications),
+                icon: _buildNotificationIcon(unreadCount),
                 label: 'Notifications',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.person),
                 label: 'Profile',
               ),
@@ -81,6 +86,40 @@ class _MainAppScreenState extends ConsumerState<MainAppScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNotificationIcon(int unreadCount) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        const Icon(Icons.notifications),
+        if (unreadCount > 0)
+          Positioned(
+            right: -6,
+            top: -4,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+              constraints: const BoxConstraints(
+                minWidth: 16,
+                minHeight: 16,
+              ),
+              child: Text(
+                unreadCount > 99 ? '99+' : unreadCount.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
