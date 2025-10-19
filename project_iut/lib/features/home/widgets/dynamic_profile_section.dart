@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
-import '../providers/home_user_provider.dart';
+import '../../profile/providers/profile_provider.dart';
 
 class DynamicProfileSection extends ConsumerWidget {
   const DynamicProfileSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentHomeUserProvider);
+    final profileAsync = ref.watch(userProfileProvider);
 
+    return profileAsync.when(
+      data: (user) {
+        if (user == null) {
+          return _buildErrorContainer('User not found');
+        }
+        return _buildProfileContainer(user);
+      },
+      loading: () => _buildLoadingContainer(),
+      error: (error, stack) => _buildErrorContainer('Failed to load profile'),
+    );
+  }
+
+  Widget _buildProfileContainer(UserModel user) {
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingM),
       decoration: BoxDecoration(
@@ -105,5 +118,143 @@ class DynamicProfileSection extends ConsumerWidget {
 
   String _getGreeting() {
     return 'Welcome';
+  }
+
+  Widget _buildLoadingContainer() {
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.paddingM),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primaryRed,
+            AppColors.primaryRed.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryRed.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+            child: const Center(
+              child: SizedBox(
+                width: 30,
+                height: 30,
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryRed,
+                  strokeWidth: 3,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSizes.paddingM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 14,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 20,
+                  width: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorContainer(String message) {
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.paddingM),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primaryRed,
+            AppColors.primaryRed.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryRed.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+            child: const Icon(
+              Icons.error_outline,
+              color: AppColors.primaryRed,
+              size: 30,
+            ),
+          ),
+          const SizedBox(width: AppSizes.paddingM),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Error',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

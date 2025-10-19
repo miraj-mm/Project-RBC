@@ -64,8 +64,9 @@ final GoRouter appRouter = GoRouter(
   refreshListenable: _authStateNotifier, // Refresh router when auth state changes
   
   // Redirect logic for authentication
-  redirect: (BuildContext context, GoRouterState state) {
-    final isAuthenticated = SupabaseService.currentUser != null;
+  redirect: (BuildContext context, GoRouterState state) async {
+    final currentUser = SupabaseService.currentUser;
+    final isAuthenticated = currentUser != null;
     final currentPath = state.matchedLocation;
     
     // Define route categories
@@ -86,8 +87,9 @@ final GoRouter appRouter = GoRouter(
       return null;
     }
 
-    // Allow sign-up route for authenticated users (during profile completion)
-    if (isSignUpRoute) {
+    // Allow sign-up route and OTP verification for authenticated users (during profile completion)
+    if (isSignUpRoute || currentPath == AppRoutes.otpVerification) {
+      debugPrint('   ✅ On signup/OTP flow, allowing access');
       return null;
     }
 
@@ -97,10 +99,28 @@ final GoRouter appRouter = GoRouter(
       return AppRoutes.login;
     }
 
-    // If authenticated and on auth routes (except sign-up), redirect to main
+    // If authenticated, check if user exists in users table (completed registration)
     if (isAuthenticated && isAuthRoute) {
-      debugPrint('   ✅ Authenticated on auth route, redirecting to main');
-      return AppRoutes.main;
+      try {
+        // Check if user has completed profile setup
+        final userRecord = await SupabaseService.from('users')
+            .select('id')
+            .eq('id', currentUser.id)
+            .maybeSingle();
+        
+        if (userRecord != null) {
+          // User has completed registration, redirect to main
+          debugPrint('   ✅ User profile complete, redirecting to main');
+          return AppRoutes.main;
+        } else {
+          // User authenticated but profile not complete, allow auth routes
+          debugPrint('   ⚠️ User authenticated but profile incomplete, staying on auth route');
+          return null;
+        }
+      } catch (e) {
+        debugPrint('   ❌ Error checking user profile: $e');
+        return null;
+      }
     }
 
     debugPrint('   ✅ No redirect needed');

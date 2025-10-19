@@ -301,11 +301,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       } catch (e) {
         print('❌ Login error: $e');
         if (mounted) {
+          // Parse error message to show user-friendly message
+          String errorMessage = 'Login failed';
+          final errorStr = e.toString().toLowerCase();
+          
+          if (errorStr.contains('invalid login credentials') || 
+              errorStr.contains('invalid password') ||
+              errorStr.contains('wrong password')) {
+            errorMessage = 'Incorrect email or password. Please try again.';
+          } else if (errorStr.contains('email not confirmed')) {
+            errorMessage = 'Please verify your email first.';
+          } else if (errorStr.contains('user not found')) {
+            errorMessage = 'No account found with this email.';
+          } else if (errorStr.contains('network')) {
+            errorMessage = 'Network error. Please check your connection.';
+          } else {
+            errorMessage = 'Login failed: ${e.toString()}';
+          }
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Login failed: ${e.toString()}'),
+              content: Text(errorMessage),
               backgroundColor: AppColors.error,
-              duration: const Duration(seconds: 5),
+              duration: const Duration(seconds: 4),
             ),
           );
         }

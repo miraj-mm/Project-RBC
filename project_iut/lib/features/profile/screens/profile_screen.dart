@@ -6,7 +6,7 @@ import '../../../core/core.dart';
 import 'edit_profile_screen.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/hover_button.dart';
-import '../../home/providers/home_user_provider.dart';
+import '../providers/profile_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../location/screens/location_tracking_screen.dart';
 import 'my_activities_screen.dart';
@@ -17,63 +17,118 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentHomeUserProvider);
+    final profileAsync = ref.watch(userProfileProvider);
+    final statsAsync = ref.watch(userStatsProvider);
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
       appBar: const AppTopBar(title: AppStrings.profile, showBack: false),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          top: AppSizes.paddingM,
-          bottom: AppSizes.paddingM,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Dynamic Profile Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
-              child: _buildProfileHeader(context, user, isDarkMode),
+      body: profileAsync.when(
+        data: (user) {
+          if (user == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.person_off, size: 64, color: AppColors.grey),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No user data found',
+                    style: TextStyle(
+                      color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(
+              top: AppSizes.paddingM,
+              bottom: AppSizes.paddingM,
             ),
-            
-            const SizedBox(height: AppSizes.paddingL),
-            
-            // Your Impact Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
-              child: Text(
-                'Your Impact',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Dynamic Profile Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
+                  child: _buildProfileHeader(context, user, isDarkMode),
+                ),
+                
+                const SizedBox(height: AppSizes.paddingL),
+                
+                // Your Impact Title
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
+                  child: Text(
+                    'Your Impact',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: AppSizes.paddingL),
+                
+                // Statistics Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
+                  child: _buildStatisticsSection(context, statsAsync, isDarkMode),
+                ),
+                
+                const SizedBox(height: AppSizes.paddingL),
+                
+                // Settings & Support
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
+                  child: _buildSettingsSection(context, ref, isDarkMode),
+                ),
+                
+                const SizedBox(height: AppSizes.paddingXL),
+              ],
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              const SizedBox(height: 16),
+              Text(
+                'Error loading profile',
                 style: TextStyle(
+                  color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Theme.of(context).brightness == Brightness.dark 
-                      ? AppColors.darkTextPrimary 
-                      : AppColors.textPrimary,
-                  letterSpacing: 0.3,
                 ),
               ),
-            ),
-            
-            const SizedBox(height: AppSizes.paddingL),
-            
-            // Statistics Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
-              child: _buildStatisticsSection(context, user, isDarkMode),
-            ),
-            
-            const SizedBox(height: AppSizes.paddingL),
-            
-            // Settings & Support
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
-              child: _buildSettingsSection(context, ref, isDarkMode),
-            ),
-            
-            const SizedBox(height: AppSizes.paddingXL),
-          ],
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  error.toString(),
+                  style: TextStyle(
+                    color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(userProfileProvider.notifier).loadUserProfile(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -196,7 +251,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatisticsSection(BuildContext context, UserModel user, bool isDarkMode) {
+  Widget _buildStatisticsSection(BuildContext context, AsyncValue<UserStats> statsAsync, bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingM),
       decoration: BoxDecoration(
@@ -210,95 +265,116 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IntrinsicHeight(
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    context,
-                    'Lives Saved',
-                    '${user.livesSaved}',
-                    Icons.favorite,
-                    AppColors.primaryRed,
-                    isDarkMode,
-                  ),
+      child: statsAsync.when(
+        data: (stats) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IntrinsicHeight(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatCard(
+                        context,
+                        'Lives Saved',
+                        '${stats.livesSaved}',
+                        Icons.favorite,
+                        AppColors.primaryRed,
+                        isDarkMode,
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.paddingS),
+                    Expanded(
+                      child: _buildStatCard(
+                        context,
+                        'Last Donation',
+                        _getLastDonationText(stats.lastDonationDate),
+                        Icons.bloodtype,
+                        AppColors.info,
+                        isDarkMode,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: AppSizes.paddingS),
-                Expanded(
-                  child: _buildStatCard(
+              ),
+              const SizedBox(height: AppSizes.paddingM),
+              // My Activities Button
+              HoverButton(
+                baseColor: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
+                onPressed: () {
+                  Navigator.push(
                     context,
-                    'Last Donation',
-                    _getLastDonationText(user.lastDonationDate),
-                    Icons.bloodtype,
-                    AppColors.info,
-                    isDarkMode,
-                  ),
+                    MaterialPageRoute(
+                      builder: (context) => const MyActivitiesScreen(),
+                    ),
+                  );
+                },
+                padding: const EdgeInsets.all(AppSizes.paddingM),
+                borderRadius: BorderRadius.circular(AppSizes.radiusS),
+                border: Border.all(color: AppColors.grey.withOpacity(0.2)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.paddingS),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.history,
+                        color: AppColors.warning,
+                        size: AppSizes.iconM,
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.paddingS),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        'My Activities',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                          size: AppSizes.iconS,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
+            ],
+          );
+        },
+        loading: () => const Center(
+          child: Padding(
+            padding: EdgeInsets.all(AppSizes.paddingL),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        error: (error, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSizes.paddingL),
+            child: Text(
+              'Unable to load statistics',
+              style: TextStyle(
+                color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+              ),
             ),
           ),
-          const SizedBox(height: AppSizes.paddingM),
-          // My Activities Button
-          HoverButton(
-            baseColor: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MyActivitiesScreen(),
-                ),
-              );
-            },
-            padding: const EdgeInsets.all(AppSizes.paddingM),
-            borderRadius: BorderRadius.circular(AppSizes.radiusS),
-            border: Border.all(color: AppColors.grey.withOpacity(0.2)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSizes.paddingS),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.history,
-                    color: AppColors.warning,
-                    size: AppSizes.iconM,
-                  ),
-                ),
-                const SizedBox(width: AppSizes.paddingS),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    'My Activities',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                    ),
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Icon(
-                      Icons.arrow_forward_ios,
-                      color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                      size: AppSizes.iconS,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

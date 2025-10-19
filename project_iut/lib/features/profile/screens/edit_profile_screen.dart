@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
+import '../providers/profile_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -11,19 +12,44 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController(text: 'Mohammed Rafeek');
-  final _emailController = TextEditingController(text: 'mohammed.rafeek@example.com');
-  final _phoneController = TextEditingController(text: '+8801700000000');
-  final _addressController = TextEditingController(text: 'Dhaka, Bangladesh');
-  final _emergencyContactController = TextEditingController(text: '+8801700000001');
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _emergencyContactController = TextEditingController();
   
   String _selectedBloodGroup = 'A+';
   String _selectedGender = 'Male';
   DateTime? _selectedDateOfBirth;
   bool _isLoading = false;
+  bool _isInitialized = false;
 
   final List<String> _bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   final List<String> _genders = ['Male', 'Female', 'Other'];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _loadUserData();
+      _isInitialized = true;
+    }
+  }
+
+  void _loadUserData() {
+    final profileAsync = ref.read(userProfileProvider);
+    profileAsync.whenData((user) {
+      if (user != null && mounted) {
+        setState(() {
+          _nameController.text = user.name;
+          _emailController.text = user.email;
+          _phoneController.text = user.phone ?? '';
+          _selectedBloodGroup = user.bloodGroup ?? 'A+';
+          _selectedGender = user.gender ?? 'Male';
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -582,8 +608,31 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     });
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      final profileNotifier = ref.read(userProfileProvider.notifier);
+      final currentUser = ref.read(userProfileProvider).value;
+      
+      if (currentUser == null) {
+        throw Exception('User data not found');
+      }
+
+      // Create updated user model
+      final updatedUser = UserModel(
+        id: currentUser.id,
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim().isNotEmpty ? _phoneController.text.trim() : null,
+        gender: _selectedGender,
+        bloodGroup: _selectedBloodGroup,
+        age: currentUser.age, // Keep existing age
+        lastDonationDate: currentUser.lastDonationDate,
+        profilePictureUrl: currentUser.profilePictureUrl,
+        livesSaved: currentUser.livesSaved,
+        isActive: currentUser.isActive,
+        createdAt: currentUser.createdAt,
+        updatedAt: DateTime.now(),
+      );
+
+      await profileNotifier.updateProfile(updatedUser);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -597,8 +646,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to update profile. Please try again.'),
+          SnackBar(
+            content: Text('Failed to update profile: ${e.toString()}'),
             backgroundColor: AppColors.error,
           ),
         );

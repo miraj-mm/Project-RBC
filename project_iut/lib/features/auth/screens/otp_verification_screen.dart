@@ -194,34 +194,36 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       try {
         print('🔐 Verifying OTP for: ${widget.phoneNumber}');
         
-        // Verify OTP with email
+        // Verify OTP with email - this will authenticate the user temporarily
         await ref.read(authStateProvider.notifier).verifyOtp(
           phone: widget.phoneNumber ?? '', // This is actually the email
           token: _otpCode,
         );
         
-        print('✅ OTP verified! User is now authenticated');
-        
-        // DO NOT sign out - we need the authenticated session for profile creation
-        // await ref.read(authStateProvider.notifier).signOut(); // REMOVED
+        print('✅ OTP verified! User authenticated temporarily for signup');
         
         if (mounted) {
-          // Schedule navigation for next frame to avoid disposal issues
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              print('📝 Navigating to sign-up page...');
-              // Pass the verified email to sign-up page
-              context.push(AppRoutes.signUp, extra: widget.phoneNumber);
-            }
-          });
+          print('📝 Navigating to sign-up page...');
+          // Use pushReplacement to prevent back navigation to OTP screen
+          context.pushReplacement(AppRoutes.signUp, extra: widget.phoneNumber);
         }
       } catch (e) {
         print('❌ OTP verification failed: $e');
         if (mounted) {
+          String errorMessage = 'OTP verification failed';
+          final errorStr = e.toString().toLowerCase();
+          
+          if (errorStr.contains('invalid') || errorStr.contains('expired')) {
+            errorMessage = 'Invalid or expired OTP. Please try again.';
+          } else if (errorStr.contains('token')) {
+            errorMessage = 'Invalid OTP code. Please check and try again.';
+          }
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('OTP verification failed: ${e.toString()}'),
+              content: Text(errorMessage),
               backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 3),
             ),
           );
         }
