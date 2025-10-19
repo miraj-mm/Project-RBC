@@ -3,33 +3,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/hover_button.dart';
+import '../../blood_requests/screens/blood_requests_screen.dart';
 import '../providers/profile_provider.dart';
 import 'package:intl/intl.dart';
+import '../../../l10n/app_localizations.dart';
 
 class MyActivitiesScreen extends ConsumerWidget {
   const MyActivitiesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final statsAsync = ref.watch(userStatsProvider);
     final donationsAsync = ref.watch(userDonationsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(context),
-      appBar: const AppTopBar(title: 'My Activities'),
+      appBar: AppTopBar(title: l10n.myActivities),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSizes.paddingM),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Statistics Overview
-            _buildStatisticsOverview(context, statsAsync),
+            _buildStatisticsOverview(context, statsAsync, l10n),
             
             const SizedBox(height: AppSizes.paddingL),
             
             // Donation History Section
             Text(
-              'Donation History',
+              l10n.donationHistory,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -44,11 +47,11 @@ class MyActivitiesScreen extends ConsumerWidget {
             donationsAsync.when(
               data: (donations) {
                 if (donations.isEmpty) {
-                  return _buildEmptyState(context);
+                  return _buildEmptyState(context, l10n);
                 }
                 return Column(
                   children: donations.map((donation) => 
-                    _buildDonationHistoryCard(context, donation)
+                    _buildDonationHistoryCard(context, donation, l10n)
                   ).toList(),
                 );
               },
@@ -70,7 +73,7 @@ class MyActivitiesScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSizes.paddingM),
                       Text(
-                        'Failed to load donation history',
+                        l10n.failedToLoadDonationHistory,
                         style: TextStyle(
                           color: AppColors.getTextSecondaryColor(context),
                         ),
@@ -86,7 +89,7 @@ class MyActivitiesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatisticsOverview(BuildContext context, AsyncValue<UserStats> statsAsync) {
+  Widget _buildStatisticsOverview(BuildContext context, AsyncValue<UserStats> statsAsync, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -97,7 +100,7 @@ class MyActivitiesScreen extends ConsumerWidget {
             bottom: AppSizes.paddingS,
           ),
           child: Text(
-            'Your Impact Summary',
+            l10n.yourImpactSummary,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -126,7 +129,7 @@ class MyActivitiesScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: _buildStatItem(
-                    'Total Donations',
+                    l10n.totalDonations,
                     '${stats.totalDonations}',
                     Icons.favorite,
                     AppColors.primaryRed,
@@ -135,7 +138,7 @@ class MyActivitiesScreen extends ConsumerWidget {
                 const SizedBox(width: AppSizes.paddingM),
                 Expanded(
                   child: _buildStatItem(
-                    'Lives Saved',
+                    l10n.livesSaved,
                     '${stats.livesSaved}',
                     Icons.people,
                     AppColors.success,
@@ -144,7 +147,7 @@ class MyActivitiesScreen extends ConsumerWidget {
                 const SizedBox(width: AppSizes.paddingM),
                 Expanded(
                   child: _buildStatItem(
-                    'Blood Volume',
+                    l10n.bloodVolume,
                     '${(stats.totalDonations * 0.5).toStringAsFixed(1)}L',
                     Icons.water_drop,
                     AppColors.info,
@@ -162,7 +165,7 @@ class MyActivitiesScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.all(AppSizes.paddingL),
                 child: Text(
-                  'Unable to load statistics',
+                  l10n.unableToLoadStatistics,
                   style: TextStyle(
                     color: AppColors.getTextSecondaryColor(context),
                   ),
@@ -212,27 +215,20 @@ class MyActivitiesScreen extends ConsumerWidget {
     ));
   }
 
-  Widget _buildDonationHistoryCard(BuildContext context, DonationRecord donation) {
+  Widget _buildDonationHistoryCard(BuildContext context, DonationRecord donation, AppLocalizations l10n) {
     final dateFormat = DateFormat('MMM dd, yyyy');
     final donationDate = dateFormat.format(donation.donationDate);
     
-    return Container(
+    return Card(
       margin: const EdgeInsets.only(bottom: AppSizes.paddingM),
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        color: AppColors.getCardBackgroundColor(context),
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grey.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      color: AppColors.getCardBackgroundColor(context),
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -255,7 +251,7 @@ class MyActivitiesScreen extends ConsumerWidget {
                     child: Text(
                       donation.hospitalName.isNotEmpty 
                         ? donation.hospitalName 
-                        : 'Blood Donation',
+                        : l10n.bloodDonation,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -275,9 +271,9 @@ class MyActivitiesScreen extends ConsumerWidget {
                   color: AppColors.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppSizes.radiusS),
                 ),
-                child: const Text(
-                  'Completed',
-                  style: TextStyle(
+                child: Text(
+                  l10n.completed,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: AppColors.success,
@@ -318,7 +314,7 @@ class MyActivitiesScreen extends ConsumerWidget {
               ),
               const SizedBox(width: AppSizes.paddingXS),
               Text(
-                'Blood Type: ${donation.bloodGroup}',
+                '${l10n.bloodType}: ${donation.bloodGroup}',
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.getTextPrimaryColor(context),
@@ -367,12 +363,13 @@ class MyActivitiesScreen extends ConsumerWidget {
               ),
             ),
           ],
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingXL),
       decoration: BoxDecoration(
@@ -395,7 +392,7 @@ class MyActivitiesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSizes.paddingM),
           Text(
-            'No Donation History',
+            l10n.noDonationHistory,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -404,7 +401,7 @@ class MyActivitiesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSizes.paddingS),
           Text(
-            'Your donation history will appear here once you start donating blood.',
+            l10n.donationHistoryMessage,
             style: TextStyle(
               fontSize: 14,
               color: AppColors.getTextSecondaryColor(context),
@@ -415,17 +412,22 @@ class MyActivitiesScreen extends ConsumerWidget {
           HoverButton(
             baseColor: AppColors.primaryRed,
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BloodRequestsScreen(),
+                ),
+              );
             },
             padding: const EdgeInsets.symmetric(
               horizontal: AppSizes.paddingL,
               vertical: AppSizes.paddingM,
             ),
             borderRadius: BorderRadius.circular(AppSizes.radiusS),
-            child: const Center(
+            child: Center(
               child: Text(
-                'Start Donating',
-                style: TextStyle(
+                l10n.startDonating,
+                style: const TextStyle(
                   color: AppColors.white,
                   fontWeight: FontWeight.w600,
                 ),

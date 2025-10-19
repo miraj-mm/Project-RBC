@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
 import '../providers/notification_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -22,40 +23,54 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final notificationState = ref.watch(notificationProvider);
 
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(context),
       appBar: AppBar(
-        title: Text(
-          'Notifications',
-          style: TextStyle(
-            color: AppColors.getTextPrimaryColor(context),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        automaticallyImplyLeading: false,
+        titleSpacing: 0,
         backgroundColor: AppColors.getSurfaceColor(context),
         foregroundColor: AppColors.getTextPrimaryColor(context),
-        iconTheme: IconThemeData(
-          color: AppColors.getTextPrimaryColor(context),
-        ),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          if (notificationState.unreadCount > 0)
-            TextButton(
-              onPressed: () {
-                ref.read(notificationProvider.notifier).markAllAsRead();
-              },
-              child: Text(
-                'Mark all read',
-                style: TextStyle(
-                  color: AppColors.primaryRed,
-                  fontSize: 14,
+        title: Row(
+          children: [
+            const SizedBox(width: AppSizes.paddingM),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: AppSizes.paddingS),
+                child: Text(
+                  l10n.notifications,
+                  style: TextStyle(
+                    color: AppColors.getTextPrimaryColor(context),
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
-        ],
+            if (notificationState.unreadCount > 0)
+              Padding(
+                padding: const EdgeInsets.only(right: AppSizes.paddingS),
+                child: TextButton(
+                  onPressed: () {
+                    ref.read(notificationProvider.notifier).markAllAsRead();
+                  },
+                  child: Text(
+                    l10n.markAllRead,
+                    style: TextStyle(
+                      color: AppColors.primaryRed,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
       body: notificationState.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -64,13 +79,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Error: ${notificationState.error}'),
+                      Text('${l10n.error}: ${notificationState.error}'),
                       const SizedBox(height: AppSizes.paddingM),
                       ElevatedButton(
                         onPressed: () {
                           ref.read(notificationProvider.notifier).refreshNotifications();
                         },
-                        child: const Text('Retry'),
+                        child: Text(l10n.retry),
                       ),
                     ],
                   ),
@@ -87,7 +102,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                           ),
                           const SizedBox(height: AppSizes.paddingM),
                           Text(
-                            'No notifications',
+                            l10n.noNotifications,
                             style: TextStyle(
                               color: AppColors.getTextSecondaryColor(context),
                             ),
@@ -135,6 +150,7 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dismissible(
       key: Key(notification.id),
       direction: DismissDirection.endToStart,
@@ -151,14 +167,15 @@ class _NotificationCard extends StatelessWidget {
           color: AppColors.white,
         ),
       ),
-      child: Container(
+      child: Card(
         margin: const EdgeInsets.only(bottom: AppSizes.paddingM),
-        decoration: BoxDecoration(
-          color: notification.isRead
-              ? AppColors.getCardBackgroundColor(context)
-              : AppColors.primaryRed.withOpacity(0.05),
+        color: notification.isRead
+            ? AppColors.getCardBackgroundColor(context)
+            : AppColors.primaryRed.withOpacity(0.05),
+        elevation: 6,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusM),
-          border: Border.all(
+          side: BorderSide(
             color: notification.isRead
                 ? AppColors.getBorderColor(context)
                 : AppColors.primaryRed.withOpacity(0.2),
@@ -203,7 +220,7 @@ class _NotificationCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                _formatTime(notification.createdAt),
+                _formatTime(notification.createdAt, l10n),
                 style: TextStyle(
                   fontSize: 11,
                   color: AppColors.getTextSecondaryColor(context),
@@ -226,12 +243,12 @@ class _NotificationCard extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime time) {
+  String _formatTime(DateTime time, AppLocalizations l10n) {
     final now = DateTime.now();
     final difference = now.difference(time);
 
     if (difference.inSeconds < 60) {
-      return 'Just now';
+      return l10n.justNow;
     } else if (difference.inMinutes < 60) {
       return '${difference.inMinutes}m ago';
     } else if (difference.inHours < 24) {

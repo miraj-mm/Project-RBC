@@ -3,7 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app_router.dart';
 import '../../../core/core.dart';
+import '../../../core/providers/theme_provider.dart';
+import '../../../core/providers/language_provider.dart';
 import '../providers/auth_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -29,6 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     
@@ -43,15 +47,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       child: Scaffold(
         backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
         body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSizes.paddingL),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: AppSizes.paddingXXL),
-              
-              // Logo and App Name
-              Column(
+        child: Stack(
+          children: [
+            // Main content
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSizes.paddingL),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: AppSizes.paddingXL), // Extra space for toggles
+                  const SizedBox(height: AppSizes.paddingL),
+                  
+                  // Logo and App Name
+                  Column(
                 children: [
                   Container(
                     width: AppSizes.logoM,
@@ -93,8 +101,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: 'IUT Email',
-                        hintText: 'Enter your @iut-dhaka.edu email',
+                        labelText: l10n.iutEmail,
+                        hintText: l10n.enterIutEmail,
                         prefixIcon: Icon(
                           Icons.email,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -108,11 +116,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your IUT email';
+                          return l10n.pleaseEnterIutEmail;
                         }
                         final v = value.trim();
                         if (!v.toLowerCase().endsWith('@iut-dhaka.edu')) {
-                          return 'Please use your IUT email (@iut-dhaka.edu)';
+                          return l10n.pleaseUseIutEmail;
                         }
                         return null;
                       },
@@ -128,8 +136,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.password,
-                        hintText: AppStrings.enterPassword,
+                        labelText: l10n.password,
+                        hintText: l10n.enterPassword,
                         prefixIcon: Icon(
                           Icons.lock,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -156,10 +164,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please Enter Your Password';
+                          return l10n.pleaseEnterYourPassword;
                         }
                         if (value.length < 6) {
-                          return 'Password Must Be at Least 6 Characters';
+                          return l10n.passwordMustBe6;
                         }
                         return null;
                       },
@@ -176,12 +184,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         },
                         child: RichText(
                           text: TextSpan(
-                            text: AppStrings.forgotPassword,
+                            text: l10n.forgotPassword,
                             style: TextStyle(color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary),
-                            children: const [
+                            children: [
                               TextSpan(
-                                text: ' ${AppStrings.clickHere}',
-                                style: TextStyle(color: AppColors.primaryRed),
+                                text: ' ${l10n.clickHere}',
+                                style: const TextStyle(color: AppColors.primaryRed),
                               ),
                             ],
                           ),
@@ -205,9 +213,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                               ),
                             )
-                          : const Text(
-                              AppStrings.login,
-                              style: TextStyle(
+                          : Text(
+                              l10n.login,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -224,16 +232,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          AppStrings.dontHaveAccount,
+                          l10n.dontHaveAccount,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         TextButton(
                           onPressed: () {
                             context.push(AppRoutes.registration);
                           },
-                          child: const Text(
-                            AppStrings.signUp,
-                            style: TextStyle(
+                          child: Text(
+                            l10n.signUp,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -246,21 +254,138 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ],
           ),
         ),
-      ),
+            
+            // Compact toggles at top right
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Language Toggle (EN/বাং)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isDarkMode 
+                          ? AppColors.darkCard.withOpacity(0.8)
+                          : AppColors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isDarkMode 
+                            ? AppColors.grey.withOpacity(0.3)
+                            : AppColors.grey.withOpacity(0.2),
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          // Toggle language between English and Bengali
+                          ref.read(languageProvider.notifier).toggleLanguage();
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.language,
+                                size: 16,
+                                color: isDarkMode 
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: 4),
+                              Consumer(
+                                builder: (context, ref, _) {
+                                  final languageState = ref.watch(languageProvider);
+                                  final isEnglish = languageState.locale.languageCode == 'en';
+                                  return Text(
+                                    isEnglish ? 'EN' : 'বাং',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: isDarkMode 
+                                          ? AppColors.darkTextPrimary
+                                          : AppColors.textPrimary,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 8),
+                  
+                  // Dark Mode Toggle
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isDarkMode 
+                          ? AppColors.darkCard.withOpacity(0.8)
+                          : AppColors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isDarkMode 
+                            ? AppColors.grey.withOpacity(0.3)
+                            : AppColors.grey.withOpacity(0.2),
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          ref.read(themeProvider.notifier).toggleTheme();
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                                size: 16,
+                                color: isDarkMode 
+                                    ? Colors.amber
+                                    : AppColors.textSecondary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        ),
       ),
     );
   }
 
   void _showExitConfirmation(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Exit App?'),
-        content: const Text('Do you want to exit the application?'),
+        title: Text(l10n.exitApp),
+        content: Text(l10n.exitAppMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -268,9 +393,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               // On web, we can't actually close the tab, but we can show a message
               // On mobile, this would exit the app
             },
-            child: const Text(
-              'Exit',
-              style: TextStyle(color: AppColors.error),
+            child: Text(
+              l10n.exit,
+              style: const TextStyle(color: AppColors.error),
             ),
           ),
         ],
@@ -301,22 +426,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       } catch (e) {
         print('❌ Login error: $e');
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           // Parse error message to show user-friendly message
-          String errorMessage = 'Login failed';
+          String errorMessage = l10n.loginFailed;
           final errorStr = e.toString().toLowerCase();
           
           if (errorStr.contains('invalid login credentials') || 
               errorStr.contains('invalid password') ||
               errorStr.contains('wrong password')) {
-            errorMessage = 'Incorrect email or password. Please try again.';
+            errorMessage = l10n.incorrectEmailOrPassword;
           } else if (errorStr.contains('email not confirmed')) {
-            errorMessage = 'Please verify your email first.';
+            errorMessage = l10n.pleaseVerifyEmail;
           } else if (errorStr.contains('user not found')) {
-            errorMessage = 'No account found with this email.';
+            errorMessage = l10n.noAccountFound;
           } else if (errorStr.contains('network')) {
-            errorMessage = 'Network error. Please check your connection.';
+            errorMessage = l10n.networkError;
           } else {
-            errorMessage = 'Login failed: ${e.toString()}';
+            errorMessage = '${l10n.loginFailed}: ${e.toString()}';
           }
           
           ScaffoldMessenger.of(context).showSnackBar(

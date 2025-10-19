@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_iut/l10n/app_localizations.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import 'home_screen.dart';
@@ -25,6 +26,8 @@ class _MainAppScreenState extends ConsumerState<MainAppScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     // Ensure currentIndex is always valid after tab removal
     if (_currentIndex >= _screens.length) {
       _currentIndex = 0;
@@ -70,17 +73,17 @@ class _MainAppScreenState extends ConsumerState<MainAppScreen> {
             unselectedItemColor: AppColors.lightRed,
             elevation: 0,
             items: [
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.home),
+                label: l10n.home,
               ),
               BottomNavigationBarItem(
                 icon: _buildNotificationIcon(unreadCount),
-                label: 'Notifications',
+                label: l10n.notifications,
               ),
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.person),
+                label: l10n.profile,
               ),
             ],
           ),

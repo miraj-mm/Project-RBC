@@ -1,4 +1,4 @@
-# DONOR - Blood Donation & Bus Route App
+# Project RBC - Blood Donation & Bus Route App
 
 A comprehensive Flutter application for blood donation management and bus route tracking, built with Supabase as the backend.
 

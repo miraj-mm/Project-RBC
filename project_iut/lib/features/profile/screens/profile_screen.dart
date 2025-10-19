@@ -10,13 +10,15 @@ import '../providers/profile_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../location/screens/location_tracking_screen.dart';
 import 'my_activities_screen.dart';
-import 'app_settings_screen.dart';
+import 'new_app_settings_screen.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final profileAsync = ref.watch(userProfileProvider);
     final statsAsync = ref.watch(userStatsProvider);
     final theme = Theme.of(context);
@@ -24,7 +26,7 @@ class ProfileScreen extends ConsumerWidget {
     
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
-      appBar: const AppTopBar(title: AppStrings.profile, showBack: false),
+      appBar: AppTopBar(title: l10n.profile, showBack: false),
       body: profileAsync.when(
         data: (user) {
           if (user == null) {
@@ -35,7 +37,7 @@ class ProfileScreen extends ConsumerWidget {
                   const Icon(Icons.person_off, size: 64, color: AppColors.grey),
                   const SizedBox(height: 16),
                   Text(
-                    'No user data found',
+                    l10n.noUserDataFound,
                     style: TextStyle(
                       color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                     ),
@@ -65,7 +67,7 @@ class ProfileScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
                   child: Text(
-                    'Your Impact',
+                    l10n.yourImpact,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
@@ -104,7 +106,7 @@ class ProfileScreen extends ConsumerWidget {
               const Icon(Icons.error_outline, size: 64, color: AppColors.error),
               const SizedBox(height: 16),
               Text(
-                'Error loading profile',
+                l10n.errorLoadingProfile,
                 style: TextStyle(
                   color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                   fontSize: 18,
@@ -125,7 +127,7 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref.read(userProfileProvider.notifier).loadUserProfile(),
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -252,20 +254,14 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildStatisticsSection(BuildContext context, AsyncValue<UserStats> statsAsync, bool isDarkMode) {
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        color: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: statsAsync.when(
+    final l10n = AppLocalizations.of(context)!;
+    return Card(
+      color: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        child: statsAsync.when(
         data: (stats) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,7 +272,7 @@ class ProfileScreen extends ConsumerWidget {
                     Expanded(
                       child: _buildStatCard(
                         context,
-                        'Lives Saved',
+                        l10n.livesSaved,
                         '${stats.livesSaved}',
                         Icons.favorite,
                         AppColors.primaryRed,
@@ -287,8 +283,8 @@ class ProfileScreen extends ConsumerWidget {
                     Expanded(
                       child: _buildStatCard(
                         context,
-                        'Last Donation',
-                        _getLastDonationText(stats.lastDonationDate),
+                        l10n.lastDonation,
+                        _getLastDonationText(stats.lastDonationDate, l10n),
                         Icons.bloodtype,
                         AppColors.info,
                         isDarkMode,
@@ -332,7 +328,7 @@ class ProfileScreen extends ConsumerWidget {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        'My Activities',
+                        l10n.myActivities,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -368,12 +364,13 @@ class ProfileScreen extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.all(AppSizes.paddingL),
             child: Text(
-              'Unable to load statistics',
+              l10n.unableToLoadStatistics,
               style: TextStyle(
                 color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
               ),
             ),
           ),
+        ),
         ),
       ),
     );
@@ -416,13 +413,14 @@ class ProfileScreen extends ConsumerWidget {
 
 
   Widget _buildSettingsSection(BuildContext context, WidgetRef ref, bool isDarkMode) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.only(left: AppSizes.paddingM, bottom: AppSizes.paddingS),
           child: Text(
-            'Settings & Support',
+            l10n.settingsAndSupport,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -433,7 +431,7 @@ class ProfileScreen extends ConsumerWidget {
         ),
         _buildSettingsItem(
           context,
-          'Location Tracking',
+          l10n.locationTracking,
           Icons.location_on,
           AppColors.success,
           () {
@@ -448,14 +446,14 @@ class ProfileScreen extends ConsumerWidget {
         ),
         _buildSettingsItem(
           context,
-          'App Settings',
+          l10n.appSettings,
           Icons.settings,
           isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
           () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const AppSettingsScreen(),
+                builder: (context) => const NewAppSettingsScreen(),
               ),
             );
           },
@@ -482,9 +480,9 @@ class ProfileScreen extends ConsumerWidget {
                 size: AppSizes.iconM,
               ),
               const SizedBox(width: AppSizes.paddingS),
-              const Text(
-                'Logout',
-                style: TextStyle(
+              Text(
+                l10n.logout,
+                style: const TextStyle(
                   color: AppColors.primaryRed,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -499,7 +497,7 @@ class ProfileScreen extends ConsumerWidget {
         // Version Info
         Center(
           child: Text(
-            'Version 1.0.0',
+            l10n.version,
             style: TextStyle(
               color: (isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary).withOpacity(0.7),
               fontSize: 12,
@@ -580,8 +578,8 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  String _getLastDonationText(DateTime? lastDonationDate) {
-    if (lastDonationDate == null) return 'Never';
+  String _getLastDonationText(DateTime? lastDonationDate, AppLocalizations l10n) {
+    if (lastDonationDate == null) return l10n.never;
     
     final now = DateTime.now();
     final difference = now.difference(lastDonationDate).inDays;
@@ -598,21 +596,22 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref, bool isDarkMode) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Logout', 
+          l10n.logoutConfirmTitle, 
           style: TextStyle(color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary),
         ),
         content: Text(
-          'Are you sure you want to logout?',
+          l10n.logoutConfirmMessage,
           style: TextStyle(color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -651,9 +650,9 @@ class ProfileScreen extends ConsumerWidget {
                 );
               }
             },
-            child: const Text(
-              'Logout',
-              style: TextStyle(
+            child: Text(
+              l10n.logout,
+              style: const TextStyle(
                 color: AppColors.primaryRed,
                 fontWeight: FontWeight.w600,
               ),

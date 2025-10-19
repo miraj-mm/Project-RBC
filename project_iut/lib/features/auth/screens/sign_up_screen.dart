@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../providers/auth_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   final String? verifiedEmail; // Email from OTP verification
@@ -36,7 +37,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   File? _profileImage;
   final ImagePicker _imagePicker = ImagePicker();
 
-  final List<String> _genders = ['Male', 'Female', 'Other'];
   final List<String> _bloodGroups = [
     'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
   ];
@@ -49,6 +49,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       _emailController.text = widget.verifiedEmail!;
     }
   }
+
+  List<String> _getGenders(AppLocalizations l10n) => [l10n.male, l10n.female, l10n.other];
 
   @override
   void dispose() {
@@ -63,12 +65,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
-      appBar: const AppTopBar(title: AppStrings.signUp),
+      appBar: AppTopBar(title: l10n.signUp),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSizes.paddingL),
@@ -77,7 +80,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             children: [
               // Header Text
               Text(
-                AppStrings.enterDetailsBelow,
+                l10n.enterDetailsBelow,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                 ),
@@ -143,8 +146,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     const SizedBox(height: AppSizes.paddingM),
                     Text(
                       _profileImage == null 
-                          ? 'Add Profile Picture (Optional)'
-                          : 'Change Profile Picture',
+                          ? l10n.addProfilePicture
+                          : l10n.changeProfilePicture,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -169,8 +172,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.name,
-                        hintText: 'Enter your full name',
+                        labelText: l10n.name,
+                        hintText: l10n.enterFullName,
                         prefixIcon: Icon(
                           Icons.person,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -184,7 +187,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your name';
+                          return l10n.pleaseEnterName;
                         }
                         return null;
                       },
@@ -200,8 +203,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.password,
-                        hintText: AppStrings.enterPassword,
+                        labelText: l10n.password,
+                        hintText: l10n.enterPassword,
                         prefixIcon: Icon(
                           Icons.lock,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -228,10 +231,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
+                          return l10n.pleaseEnterPassword;
                         }
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return l10n.passwordMinimum6;
                         }
                         return null;
                       },
@@ -247,8 +250,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.mobileNumber,
-                        hintText: 'Enter your mobile number',
+                        labelText: l10n.mobileNumber,
+                        hintText: l10n.enterMobileNumber,
                         prefixIcon: Icon(
                           Icons.phone,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -262,10 +265,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your mobile number';
+                          return l10n.pleaseEnterMobileNumber;
                         }
                         if (value.length < 10) {
-                          return 'Please enter a valid mobile number';
+                          return l10n.pleaseEnterValidMobile;
                         }
                         return null;
                       },
@@ -284,8 +287,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           : (isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary),
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.emailId,
-                        hintText: 'Enter your email address',
+                        labelText: l10n.emailId,
+                        hintText: l10n.enterEmailAddress,
                         prefixIcon: Icon(
                           Icons.email,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -306,13 +309,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return l10n.pleaseEnterEmail;
                         }
                         if (!value.toLowerCase().endsWith('@iut-dhaka.edu')) {
-                          return 'Please use your IUT email (@iut-dhaka.edu)';
+                          return l10n.pleaseUseIutEmail;
                         }
                         if (!RegExp(r'^[\w-\.]+@iut-dhaka\.edu$').hasMatch(value.toLowerCase())) {
-                          return 'Please enter a valid email';
+                          return l10n.pleaseEnterValidEmail;
                         }
                         return null;
                       },
@@ -331,7 +334,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                             ),
                             decoration: InputDecoration(
-                              labelText: AppStrings.gender,
+                              labelText: l10n.gender,
                               prefixIcon: Icon(
                                 Icons.person_outline,
                                 color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -341,7 +344,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               ),
                             ),
                             dropdownColor: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
-                            items: _genders.map((gender) {
+                            items: _getGenders(l10n).map((gender) {
                               return DropdownMenuItem(
                                 value: gender,
                                 child: Text(
@@ -359,7 +362,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             },
                             validator: (value) {
                               if (value == null) {
-                                return 'Please select gender';
+                                return l10n.pleaseSelectGender;
                               }
                               return null;
                             },
@@ -377,7 +380,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                             ),
                             decoration: InputDecoration(
-                              labelText: AppStrings.age,
+                              labelText: l10n.age,
                               hintText: '25',
                               prefixIcon: Icon(
                                 Icons.cake,
@@ -392,11 +395,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter age';
+                                return l10n.pleaseEnterAge;
                               }
                               final age = int.tryParse(value);
                               if (age == null || age < 18 || age > 65) {
-                                return 'Age must be 18-65';
+                                return l10n.ageMustBe18to65;
                               }
                               return null;
                             },
@@ -414,7 +417,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.bloodGroup,
+                        labelText: l10n.bloodGroup,
                         prefixIcon: Icon(
                           Icons.bloodtype,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -461,7 +464,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       },
                       validator: (value) {
                         if (value == null) {
-                          return 'Please select blood group';
+                          return l10n.pleaseSelectBloodGroup;
                         }
                         return null;
                       },
@@ -477,7 +480,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.lastBloodDonationDate,
+                        labelText: l10n.lastBloodDonationDate,
                         hintText: '16 March 2020',
                         prefixIcon: Icon(
                           Icons.calendar_today,
@@ -514,12 +517,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         Expanded(
                           child: RichText(
                             text: TextSpan(
-                              text: '${AppStrings.iAgree} ',
+                              text: '${l10n.iAgree} ',
                               style: TextStyle(color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary),
                               children: [
                                 TextSpan(
-                                  text: AppStrings.termsConditions,
-                                  style: TextStyle(
+                                  text: l10n.termsConditions,
+                                  style: const TextStyle(
                                     color: AppColors.primaryRed,
                                     decoration: TextDecoration.underline,
                                   ),
@@ -547,9 +550,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 ),
                               ),
                             )
-                          : const Text(
-                              AppStrings.signUpButton,
-                              style: TextStyle(
+                          : Text(
+                              l10n.signUpButton,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -611,6 +614,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   void _showImageSourceDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -619,7 +623,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Take Photo'),
+              title: Text(l10n.takePhoto),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
@@ -627,7 +631,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
+              title: Text(l10n.chooseFromGallery),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);
@@ -636,7 +640,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             if (_profileImage != null)
               ListTile(
                 leading: const Icon(Icons.delete, color: AppColors.error),
-                title: const Text('Remove Photo', style: TextStyle(color: AppColors.error)),
+                title: Text(l10n.removePhoto, style: const TextStyle(color: AppColors.error)),
                 onTap: () {
                   Navigator.pop(context);
                   setState(() {
@@ -646,7 +650,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               ),
             ListTile(
               leading: const Icon(Icons.cancel),
-              title: const Text('Cancel'),
+              title: Text(l10n.cancel),
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -671,9 +675,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to pick image: ${e.toString()}'),
+            content: Text('${l10n.failedToPickImage}: ${e.toString()}'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -725,7 +730,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         // Get current user (who was authenticated via OTP)
         final currentUser = SupabaseService.currentUser;
         if (currentUser == null) {
-          throw Exception('No authenticated user found');
+          final l10n = AppLocalizations.of(context)!;
+          throw Exception(l10n.noAuthenticatedUser);
         }
 
         // Upload profile picture if selected
@@ -762,12 +768,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         await ref.read(authStateProvider.notifier).signOut();
         
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Account created successfully! Please login with your credentials.'),
+            SnackBar(
+              content: Text(l10n.accountCreatedSuccessfully),
               backgroundColor: AppColors.success,
-              duration: Duration(seconds: 5),
+              duration: const Duration(seconds: 5),
             ),
           );
           
@@ -776,9 +783,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         }
       } catch (e) {
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Sign up failed: ${e.toString()}'),
+              content: Text('${l10n.signUpFailed}: ${e.toString()}'),
               backgroundColor: AppColors.error,
             ),
           );

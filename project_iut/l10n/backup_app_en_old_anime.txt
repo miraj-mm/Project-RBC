@@ -1,0 +1,435 @@
+{
+  "@@locale": "en",
+  
+  "@_APP_INFO": {},
+  "appName": "DONOR",
+  "@appName": {
+    "description": "Application name"
+  },
+  "appVersion": "1.0.0",
+  "@appVersion": {
+    "description": "Application version"
+  },
+  
+  "@_AUTHENTICATION": {},
+  "login": "Login",
+  "@login": {
+    "description": "Login button and screen title"
+  },
+  "signUp": "Sign Up",
+  "@signUp": {
+    "description": "Sign up button text"
+  },
+  "registration": "Registration",
+  "@registration": {
+    "description": "Registration screen title"
+  },
+  "verifyOtp": "Verify OTP",
+  "@verifyOtp": {
+    "description": "OTP verification screen title"
+  },
+  "mobile": "Mobile",
+  "@mobile": {
+    "description": "Mobile number field label"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  "enterPassword": "Enter Password",
+  "@enterPassword": {
+    "description": "Password field hint"
+  },
+  "confirmPassword": "Confirm Password",
+  "@confirmPassword": {
+    "description": "Confirm password field label"
+  },
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {
+    "description": "Forgot password link text"
+  },
+  "clickHere": "Click Here",
+  "@clickHere": {
+    "description": "Click here link text"
+  },
+  "or": "OR",
+  "@or": {
+    "description": "OR divider text"
+  },
+  "dontHaveAccount": "Don't Have an Account?",
+  "@dontHaveAccount": {
+    "description": "Sign up prompt"
+  },
+  "alreadyMember": "Already a Member?",
+  "@alreadyMember": {
+    "description": "Login prompt"
+  },
+  "loginNow": "Login Now",
+  "@loginNow": {
+    "description": "Login now link text"
+  },
+  "enterDetailsBelow": "Enter Your Details Below to Proceed",
+  "@enterDetailsBelow": {
+    "description": "Registration instruction text"
+  },
+  "getOtp": "Get OTP",
+  "@getOtp": {
+    "description": "Get OTP button text"
+  },
+  "enterVerificationCode": "Enter the 4-Digit Verification Code",
+  "@enterVerificationCode": {
+    "description": "OTP input instruction"
+  },
+  "didntReceiveCode": "Didn't Receive Any Code?",
+  "@didntReceiveCode": {
+    "description": "Resend OTP prompt"
+  },
+  "resend": "Resend",
+  "@resend": {
+    "description": "Resend OTP button text"
+  },
+  "proceed": "Proceed",
+  "@proceed": {
+    "description": "Proceed button text"
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Name field label"
+  },
+  "mobileNumber": "Mobile Number",
+  "@mobileNumber": {
+    "description": "Mobile number field label"
+  },
+  "emailId": "Email ID",
+  "@emailId": {
+    "description": "Email field label"
+  },
+  "gender": "Gender",
+  "@gender": {
+    "description": "Gender field label"
+  },
+  "age": "Age",
+  "@age": {
+    "description": "Age field label"
+  },
+  "bloodGroup": "Blood Group",
+  "@bloodGroup": {
+    "description": "Blood group field label"
+  },
+  "lastBloodDonationDate": "Last Blood Donation Date",
+  "@lastBloodDonationDate": {
+    "description": "Last donation date field label"
+  },
+  "iAgree": "I Agree to the",
+  "@iAgree": {
+    "description": "Terms agreement prefix"
+  },
+  "termsConditions": "Terms & Conditions",
+  "@termsConditions": {
+    "description": "Terms and conditions link"
+  },
+  "signUpButton": "Sign Up",
+  "@signUpButton": {
+    "description": "Sign up button text"
+  },
+  
+  "@_NAVIGATION": {},
+  "home": "Home",
+  "@home": {
+    "description": "Home tab label"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile tab label"
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Notifications tab label"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings screen title"
+  },
+  
+  "@_LOCATION": {},
+  "location": "Location",
+  "@location": {
+    "description": "Location label"
+  },
+  "enterYourLocation": "Enter your current Location",
+  "@enterYourLocation": {
+    "description": "Location input placeholder"
+  },
+  "useCurrentLocation": "Use your current Location",
+  "@useCurrentLocation": {
+    "description": "Use current location button"
+  },
+  
+  "@_BUS_ROUTE": {},
+  "iutBusRoute": "IUT Bus Route",
+  "@iutBusRoute": {
+    "description": "Bus route section title"
+  },
+  "running": "Running",
+  "@running": {
+    "description": "Bus running status"
+  },
+  "bus1": "Bus 1",
+  "@bus1": {
+    "description": "Bus 1 label"
+  },
+  "newesStation": "Nearest Station: Tongi",
+  "@newesStation": {
+    "description": "Nearest station info"
+  },
+  
+  "@_BLOOD_DONATION": {},
+  "iutBloodDonation": "IUT Blood Donation",
+  "@iutBloodDonation": {
+    "description": "Blood donation section title"
+  },
+  "wantToBeADonor": "Want to Be a Donor?",
+  "@wantToBeADonor": {
+    "description": "Donor registration prompt"
+  },
+  "requestForBlood": "Request for Blood",
+  "@requestForBlood": {
+    "description": "Blood request button"
+  },
+  "urgentRequests": "Urgent Requests",
+  "@urgentRequests": {
+    "description": "Urgent requests label"
+  },
+  "requests": "Requests",
+  "@requests": {
+    "description": "Requests label"
+  },
+  "bloodRequest": "Blood Request",
+  "@bloodRequest": {
+    "description": "Blood request title"
+  },
+  "shareNow": "Share Now",
+  "@shareNow": {
+    "description": "Share button text"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button text"
+  },
+  "viewMore": "View More",
+  "@viewMore": {
+    "description": "View more button text"
+  },
+  "requestedBlood": "Requested Blood",
+  "@requestedBlood": {
+    "description": "Requested blood label"
+  },
+  
+  "@_MEDICAL_INFO": {},
+  "medicalCondition": "Medical Condition:",
+  "@medicalCondition": {
+    "description": "Medical condition label"
+  },
+  "medicalCollege": "Medical College",
+  "@medicalCollege": {
+    "description": "Medical college label"
+  },
+  "units": "Units",
+  "@units": {
+    "description": "Blood units label"
+  },
+  "requestedBy": "Requested By:",
+  "@requestedBy": {
+    "description": "Requester name label"
+  },
+  "byStander": "Bystander:",
+  "@byStander": {
+    "description": "Bystander label"
+  },
+  "ngo": "[NGO]",
+  "@ngo": {
+    "description": "NGO tag"
+  },
+  
+  "@_PROFILE": {},
+  "editProfile": "Edit Profile",
+  "@editProfile": {
+    "description": "Edit profile button"
+  },
+  "requestBlood": "Request Blood",
+  "@requestBlood": {
+    "description": "Request blood button"
+  },
+  "onGoingBloodDonation": "Ongoing Blood Donation",
+  "@onGoingBloodDonation": {
+    "description": "Ongoing donation label"
+  },
+  "myActivities": "My Activities",
+  "@myActivities": {
+    "description": "My activities menu item"
+  },
+  "dressDonation": "Dress Donation",
+  "@dressDonation": {
+    "description": "Dress donation menu item"
+  },
+  "foodDonation": "Food Donation",
+  "@foodDonation": {
+    "description": "Food donation menu item"
+  },
+  "medicineDonation": "Medicine Donation",
+  "@medicineDonation": {
+    "description": "Medicine donation menu item"
+  },
+  "privacyPolicy": "Privacy & Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy menu item"
+  },
+  "help": "Help",
+  "@help": {
+    "description": "Help menu item"
+  },
+  "rateUs": "Rate Us",
+  "@rateUs": {
+    "description": "Rate us menu item"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button"
+  },
+  "changePassword": "Change Password",
+  "@changePassword": {
+    "description": "Change password option"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "phoneNumber": "Phone Number",
+  "@phoneNumber": {
+    "description": "Phone number label"
+  },
+  
+  "@_DONATION_PROCESS": {},
+  "ongoingDonation": "Ongoing Donation",
+  "@ongoingDonation": {
+    "description": "Ongoing donation title"
+  },
+  "patientName": "Patient Name:",
+  "@patientName": {
+    "description": "Patient name label"
+  },
+  "areYouDonatingToday": "Are You Donating Today?",
+  "@areYouDonatingToday": {
+    "description": "Donation confirmation question"
+  },
+  "call": "Call",
+  "@call": {
+    "description": "Call button text"
+  },
+  "anyChangeInPlan": "Any Change in Plan?",
+  "@anyChangeInPlan": {
+    "description": "Change plan question"
+  },
+  "reasonForCancellation": "Reason for Cancellation",
+  "@reasonForCancellation": {
+    "description": "Cancellation reason field"
+  },
+  "submit": "Submit",
+  "@submit": {
+    "description": "Submit button text"
+  },
+  
+  "@_ELIGIBILITY": {},
+  "youAreNotEligible": "You Are Not Eligible for\nBlood Donation",
+  "@youAreNotEligible": {
+    "description": "Not eligible message"
+  },
+  "thankYouForConfirmation": "Thank You for Your\nConfirmation",
+  "@thankYouForConfirmation": {
+    "description": "Thank you message"
+  },
+  
+  "@_CERTIFICATE": {},
+  "donor": "Donor",
+  "@donor": {
+    "description": "Donor label"
+  },
+  "certificateText": "This is a Certificate Given to\nMr. Mohammed Rafeek for\nDonating Blood and Associating\na Social Service with Us\non 10-07-2020",
+  "@certificateText": {
+    "description": "Certificate text template"
+  },
+  
+  "@_CONTACT": {},
+  "contact": "Contact:",
+  "@contact": {
+    "description": "Contact label"
+  },
+  "helpDeskNumber": "Help Desk Number:",
+  "@helpDeskNumber": {
+    "description": "Help desk number label"
+  },
+  
+  "@_BLOOD_GROUPS": {},
+  "aPositive": "A+",
+  "@aPositive": {
+    "description": "Blood group A positive"
+  },
+  "aNegative": "A-",
+  "@aNegative": {
+    "description": "Blood group A negative"
+  },
+  "bPositive": "B+",
+  "@bPositive": {
+    "description": "Blood group B positive"
+  },
+  "bNegative": "B-",
+  "@bNegative": {
+    "description": "Blood group B negative"
+  },
+  "abPositive": "AB+",
+  "@abPositive": {
+    "description": "Blood group AB positive"
+  },
+  "abNegative": "AB-",
+  "@abNegative": {
+    "description": "Blood group AB negative"
+  },
+  "oPositive": "O+",
+  "@oPositive": {
+    "description": "Blood group O positive"
+  },
+  "oNegative": "O-",
+  "@oNegative": {
+    "description": "Blood group O negative"
+  },
+  
+  "@_COMMON": {},
+  "yes": "Yes",
+  "@yes": {
+    "description": "Yes"
+  },
+  "no": "No",
+  "@no": {
+    "description": "No"
+  },
+  "liveSaved": "Lives Saved",
+  "@liveSaved": {
+    "description": "Lives saved label"
+  },
+  "kindserv": "KindServ",
+  "@kindserv": {
+    "description": "KindServ label"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language label"
+  },
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark mode label"
+  },
+  "lightMode": "Light Mode",
+  "@lightMode": {
+    "description": "Light mode label"
+  }
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
 import '../providers/profile_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -25,7 +26,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   bool _isInitialized = false;
 
   final List<String> _bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-  final List<String> _genders = ['Male', 'Female', 'Other'];
 
   @override
   void didChangeDependencies() {
@@ -53,11 +53,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final genders = [l10n.male, l10n.female, l10n.other];
+    
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(context),
       appBar: AppBar(
         title: Text(
-          'Edit Profile',
+          l10n.editProfile,
           style: TextStyle(
             color: AppColors.getTextPrimaryColor(context),
             fontWeight: FontWeight.w600,
@@ -74,7 +77,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           TextButton(
             onPressed: _saveProfile,
             child: Text(
-              'Save',
+              l10n.save,
               style: TextStyle(
                 color: _isLoading ? AppColors.getTextSecondaryColor(context) : AppColors.primaryRed,
                 fontWeight: FontWeight.bold,
@@ -171,7 +174,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Personal Information',
+                      l10n.personalInformation,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -183,11 +186,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     // Full Name
                     _buildTextField(
                       controller: _nameController,
-                      label: 'Full Name',
+                      label: l10n.fullName,
                       icon: Icons.person,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your full name';
+                          return l10n.pleaseEnterFullName;
                         }
                         return null;
                       },
@@ -198,15 +201,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     // Email
                     _buildTextField(
                       controller: _emailController,
-                      label: 'Email Address',
+                      label: l10n.emailAddress,
                       icon: Icons.email,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return l10n.pleaseEnterEmail;
                         }
                         if (!value.contains('@')) {
-                          return 'Please enter a valid email';
+                          return l10n.pleaseEnterValidEmail;
                         }
                         return null;
                       },
@@ -217,12 +220,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     // Phone
                     _buildTextField(
                       controller: _phoneController,
-                      label: 'Phone Number',
+                      label: l10n.phoneNumber,
                       icon: Icons.phone,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your phone number';
+                          return l10n.pleaseEnterPhoneNumber;
                         }
                         return null;
                       },
@@ -232,7 +235,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                     // Blood Group
                     Text(
-                      'Blood Group',
+                      l10n.bloodGroup,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -279,7 +282,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                     // Gender
                     Text(
-                      'Gender',
+                      l10n.gender,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -314,7 +317,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         ),
                         contentPadding: const EdgeInsets.all(AppSizes.paddingM),
                       ),
-                      items: _genders.map((gender) {
+                      items: genders.map((gender) {
                         return DropdownMenuItem<String>(
                           value: gender,
                           child: Text(gender),
@@ -326,7 +329,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                     // Date of Birth
                     Text(
-                      'Date of Birth',
+                      l10n.dateOfBirth,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -354,7 +357,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             Text(
                               _selectedDateOfBirth != null
                                   ? '${_selectedDateOfBirth!.day}/${_selectedDateOfBirth!.month}/${_selectedDateOfBirth!.year}'
-                                  : 'Select date of birth',
+                                  : l10n.selectDateOfBirth,
                               style: TextStyle(
                                 color: _selectedDateOfBirth != null
                                     ? AppColors.getTextPrimaryColor(context)
@@ -372,12 +375,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     // Address
                     _buildTextField(
                       controller: _addressController,
-                      label: 'Address',
+                      label: l10n.address,
                       icon: Icons.location_on,
                       maxLines: 2,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your address';
+                          return l10n.pleaseEnterAddress;
                         }
                         return null;
                       },
@@ -407,7 +410,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Emergency Contact',
+                      l10n.emergencyContact,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -418,12 +421,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                     _buildTextField(
                       controller: _emergencyContactController,
-                      label: 'Emergency Contact Number',
+                      label: l10n.emergencyContactNumber,
                       icon: Icons.emergency,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter emergency contact number';
+                          return l10n.pleaseEnterEmergencyContact;
                         }
                         return null;
                       },
@@ -453,8 +456,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           strokeWidth: 2,
                         )
                       : Text(
-                          'Save Changes',
-                          style: TextStyle(
+                          l10n.saveChanges,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -635,9 +638,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       await profileNotifier.updateProfile(updatedUser);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully!'),
+          SnackBar(
+            content: Text(l10n.profileUpdatedSuccessfully),
             backgroundColor: AppColors.success,
           ),
         );

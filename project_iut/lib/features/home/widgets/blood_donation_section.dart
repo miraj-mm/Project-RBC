@@ -38,22 +38,15 @@ class BloodDonationSection extends StatelessWidget {
         ),
         
         // Container with content
-        Container(
-          padding: const EdgeInsets.all(AppSizes.paddingM),
-          decoration: BoxDecoration(
-            color: AppColors.getCardBackgroundColor(context),
-            borderRadius: BorderRadius.circular(AppSizes.radiusM),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.grey.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        Card(
+          color: AppColors.getCardBackgroundColor(context),
+          elevation: 6,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
+          child: Container(
+            padding: const EdgeInsets.all(AppSizes.paddingM),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
           
           // Want to be a donor button
           SizedBox(
@@ -193,8 +186,9 @@ class BloodDonationSection extends StatelessWidget {
               ),
             ],
           ),
-            ],
-          ),
+          ],
+        ),
+            ),
         ),
       ],
     );

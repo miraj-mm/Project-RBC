@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
-import '../../../core/models/notification_model.dart';
 
 // Notification State
 class NotificationState {

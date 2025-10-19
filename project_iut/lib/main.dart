@@ -1,7 +1,10 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_iut/l10n/app_localizations.dart';
 import 'core/core.dart';
 import 'core/providers/theme_provider.dart';
+import 'core/providers/language_provider.dart';
 import 'app_router.dart';
 
 void main() async {
@@ -49,6 +52,7 @@ class DonorApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
+    final languageState = ref.watch(languageProvider);
     
     return MaterialApp.router(
       routerConfig: appRouter,
@@ -56,6 +60,17 @@ class DonorApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      locale: languageState.locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'), // English
+        Locale('bn'), // Bengali
+      ],
       debugShowCheckedModeBanner: false,
     );
   }

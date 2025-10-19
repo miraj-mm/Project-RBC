@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app_router.dart';
 import '../../../core/core.dart';
 import '../providers/auth_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -26,6 +27,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     
@@ -61,7 +63,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               
               // Title
               Text(
-                _emailSent ? 'Check Your Email' : 'Forgot Password?',
+                _emailSent ? l10n.checkYourEmail : l10n.forgotPasswordTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -74,8 +76,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               // Description
               Text(
                 _emailSent
-                    ? 'We have sent a password reset link to your email. Please check your inbox and follow the instructions.'
-                    : 'Enter your IUT email address and we\'ll send you a link to reset your password.',
+                    ? l10n.passwordResetEmailSent
+                    : l10n.enterIutEmailForReset,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                 ),
@@ -99,8 +101,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'Enter your IUT email',
+                          labelText: l10n.email,
+                          hintText: l10n.enterIutEmail,
                           prefixIcon: Icon(
                             Icons.email,
                             color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
@@ -114,10 +116,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                            return l10n.pleaseEnterEmail;
                           }
                           if (!value.toLowerCase().endsWith('@iut-dhaka.edu')) {
-                            return 'Please use your IUT email (@iut-dhaka.edu)';
+                            return l10n.pleaseUseIutEmail;
                           }
                           return null;
                         },
@@ -137,15 +139,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     AppColors.white,
                                   ),
-                                ),
-                              )
-                            : const Text(
-                                'Send Reset Link',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
                               ),
+                            )
+                          : Text(
+                              l10n.sendResetLink,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                       ),
                     ],
                   ),
@@ -154,9 +156,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 // Email Sent Success Actions
                 ElevatedButton(
                   onPressed: () => context.go(AppRoutes.login),
-                  child: const Text(
-                    'Back to Login',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.backToLogin,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -175,9 +177,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text(
-                          'Resend Email',
-                          style: TextStyle(
+                      : Text(
+                          l10n.resendEmail,
+                          style: const TextStyle(
                             fontSize: 14,
                           ),
                         ),
@@ -192,16 +194,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Remember your password? ',
+                      l10n.rememberPassword,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                       ),
                     ),
                     TextButton(
                       onPressed: () => context.go(AppRoutes.login),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.login,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -213,9 +215,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         ),
       ),
     );
-  }
-
-  void _handleSendResetLink() async {
+  }  void _handleSendResetLink() async {
     if (!_emailSent && !(_formKey.currentState?.validate() ?? false)) {
       return;
     }

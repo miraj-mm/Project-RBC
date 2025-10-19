@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/hover_button.dart';
+import '../../../core/providers/language_provider.dart';
+import '../../../core/providers/theme_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class NewAppSettingsScreen extends ConsumerStatefulWidget {
   const NewAppSettingsScreen({super.key});
@@ -17,25 +20,24 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
   bool _donationReminders = true;
   bool _emergencyAlerts = true;
   bool _locationTracking = false;
-  bool _darkMode = false;
-  String _selectedLanguage = 'English';
 
   final List<String> _languages = ['English', 'বাংলা (Bengali)'];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const AppTopBar(title: 'App Settings'),
+      appBar: AppTopBar(title: l10n.appSettings),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSizes.paddingM),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Appearance Section
-            const Text(
-              'Appearance',
-              style: TextStyle(
+            Text(
+              l10n.appearance,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
@@ -47,41 +49,49 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
             
             _buildSettingsCard([
               _buildSettingsTile(
-                title: 'Dark Mode',
-                subtitle: 'Switch between light and dark theme',
+                title: l10n.darkMode,
+                subtitle: l10n.switchTheme,
                 icon: Icons.dark_mode,
                 iconColor: AppColors.textSecondary,
-                trailing: Switch(
-                  value: _darkMode,
-                  onChanged: (value) {
-                    setState(() {
-                      _darkMode = value;
-                    });
-                    _showComingSoonDialog('Dark Mode');
+                trailing: Consumer(
+                  builder: (context, ref, _) {
+                    final themeState = ref.watch(themeProvider);
+                    return Switch(
+                      value: themeState.isDarkMode,
+                      onChanged: (value) {
+                        ref.read(themeProvider.notifier).toggleTheme();
+                      },
+                      activeThumbColor: AppColors.primaryRed,
+                    );
                   },
-                  activeThumbColor: AppColors.primaryRed,
                 ),
               ),
-              _buildSettingsTile(
-                title: 'Language',
-                subtitle: _selectedLanguage,
-                icon: Icons.language,
-                iconColor: AppColors.info,
-                trailing: const Icon(
-                  Icons.arrow_forward_ios,
-                  size: AppSizes.iconXS,
-                  color: AppColors.textSecondary,
-                ),
-                onTap: () => _showLanguageDialog(),
+              Consumer(
+                builder: (context, ref, _) {
+                  final languageState = ref.watch(languageProvider);
+                  final currentLanguage = languageState.locale.languageCode == 'en' 
+                      ? 'English' 
+                      : 'বাংলা (Bengali)';
+                  return _buildSettingsTile(
+                    title: l10n.language,
+                    subtitle: currentLanguage,
+                    icon: Icons.language,
+                    iconColor: AppColors.info,
+                    trailing: const Icon(
+                      Icons.arrow_forward_ios,
+                      size: AppSizes.iconXS,
+                      color: AppColors.textSecondary,
+                    ),
+                    onTap: () => _showLanguageDialog(),
+                  );
+                },
               ),
-            ]),
-            
-            const SizedBox(height: AppSizes.paddingL),
+            ]),            const SizedBox(height: AppSizes.paddingL),
             
             // Notifications Section
-            const Text(
-              'Notifications',
-              style: TextStyle(
+            Text(
+              l10n.notificationsSettings,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
@@ -93,8 +103,8 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
             
             _buildSettingsCard([
               _buildSettingsTile(
-                title: 'Push Notifications',
-                subtitle: 'Receive app notifications',
+                title: l10n.pushNotifications,
+                subtitle: l10n.receiveAppNotifications,
                 icon: Icons.notifications,
                 iconColor: AppColors.warning,
                 trailing: Switch(
@@ -109,8 +119,8 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
               ),
               if (_notificationsEnabled) ...[
                 _buildSettingsTile(
-                  title: 'Blood Request Alerts',
-                  subtitle: 'Get notified about urgent blood requests',
+                  title: l10n.bloodRequestAlerts,
+                  subtitle: l10n.urgentBloodRequests,
                   icon: Icons.bloodtype,
                   iconColor: AppColors.primaryRed,
                   trailing: Switch(
@@ -124,8 +134,8 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                   ),
                 ),
                 _buildSettingsTile(
-                  title: 'Donation Reminders',
-                  subtitle: 'Remind me when I can donate again',
+                  title: l10n.donationReminders,
+                  subtitle: l10n.remindWhenCanDonate,
                   icon: Icons.schedule,
                   iconColor: AppColors.info,
                   trailing: Switch(
@@ -139,8 +149,8 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                   ),
                 ),
                 _buildSettingsTile(
-                  title: 'Emergency Alerts',
-                  subtitle: 'Critical blood shortage notifications',
+                  title: l10n.emergencyAlerts,
+                  subtitle: l10n.criticalBloodShortage,
                   icon: Icons.warning,
                   iconColor: AppColors.warning,
                   trailing: Switch(
@@ -159,9 +169,9 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
             const SizedBox(height: AppSizes.paddingL),
             
             // Privacy & Security Section
-            const Text(
-              'Privacy & Security',
-              style: TextStyle(
+            Text(
+              l10n.privacyAndSecurity,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
@@ -173,8 +183,8 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
             
             _buildSettingsCard([
               _buildSettingsTile(
-                title: 'Location Services',
-                subtitle: 'Allow location access for tracking',
+                title: l10n.locationServices,
+                subtitle: l10n.allowLocationAccess,
                 icon: Icons.location_on,
                 iconColor: AppColors.success,
                 trailing: Switch(
@@ -188,8 +198,8 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                 ),
               ),
               _buildSettingsTile(
-                title: 'Privacy Policy',
-                subtitle: 'Read our privacy policy',
+                title: l10n.privacyPolicy,
+                subtitle: l10n.readPrivacyPolicy,
                 icon: Icons.privacy_tip,
                 iconColor: AppColors.textSecondary,
                 trailing: const Icon(
@@ -198,7 +208,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                   color: AppColors.textSecondary,
                 ),
                 onTap: () {
-                  _showComingSoonDialog('Privacy Policy');
+                  _showComingSoonDialog(l10n.privacyPolicy);
                 },
               ),
             ]),
@@ -206,9 +216,9 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
             const SizedBox(height: AppSizes.paddingL),
             
             // About Section
-            const Text(
-              'About',
-              style: TextStyle(
+            Text(
+              l10n.about,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
@@ -220,14 +230,14 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
             
             _buildSettingsCard([
               _buildSettingsTile(
-                title: 'App Version',
+                title: l10n.appVersion,
                 subtitle: '1.0.0 (Build 1)',
                 icon: Icons.info,
                 iconColor: AppColors.info,
               ),
               _buildSettingsTile(
-                title: 'Terms of Service',
-                subtitle: 'Read our terms and conditions',
+                title: l10n.termsOfService,
+                subtitle: l10n.readTermsAndConditions,
                 icon: Icons.description,
                 iconColor: AppColors.textSecondary,
                 trailing: const Icon(
@@ -236,7 +246,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                   color: AppColors.textSecondary,
                 ),
                 onTap: () {
-                  _showComingSoonDialog('Terms of Service');
+                  _showComingSoonDialog(l10n.termsOfService);
                 },
               ),
             ]),
@@ -249,18 +259,10 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
   }
 
   Widget _buildSettingsCard(List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+    return Card(
+      color: AppColors.white,
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
       child: Column(
         children: children,
       ),
@@ -325,6 +327,10 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
   }
 
   void _showLanguageDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    final languageState = ref.read(languageProvider);
+    final currentLanguage = languageState.locale.languageCode == 'en' ? 'English' : 'বাংলা (Bengali)';
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -332,9 +338,9 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusM),
         ),
-        title: const Text(
-          'Select Language',
-          style: TextStyle(
+        title: Text(
+          l10n.selectLanguage,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -346,13 +352,10 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
             return HoverButton(
               baseColor: AppColors.white,
               onPressed: () {
-                setState(() {
-                  _selectedLanguage = language;
-                });
+                // Update language using provider
+                final newLanguageCode = language == 'English' ? 'en' : 'bn';
+                ref.read(languageProvider.notifier).setLanguage(newLanguageCode);
                 Navigator.of(context).pop();
-                if (language == 'বাংলা (Bengali)') {
-                  _showComingSoonDialog('Bengali Language Support');
-                }
               },
               padding: const EdgeInsets.symmetric(
                 vertical: AppSizes.paddingS,
@@ -363,15 +366,12 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
                 children: [
                   Radio<String>(
                     value: language,
-                    groupValue: _selectedLanguage,
+                    groupValue: currentLanguage,
                     onChanged: (value) {
-                      setState(() {
-                        _selectedLanguage = value!;
-                      });
+                      // Update language using provider
+                      final newLanguageCode = value == 'English' ? 'en' : 'bn';
+                      ref.read(languageProvider.notifier).setLanguage(newLanguageCode);
                       Navigator.of(context).pop();
-                      if (value == 'বাংলা (Bengali)') {
-                        _showComingSoonDialog('Bengali Language Support');
-                      }
                     },
                     activeColor: AppColors.primaryRed,
                   ),
@@ -393,9 +393,9 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Text(
+              AppLocalizations.of(context)!.cancel,
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -404,6 +404,7 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
   }
 
   void _showComingSoonDialog(String feature) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -411,9 +412,9 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusM),
         ),
-        title: const Text(
-          'Coming Soon',
-          style: TextStyle(
+        title: Text(
+          l10n.comingSoon,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -435,10 +436,10 @@ class _NewAppSettingsScreenState extends ConsumerState<NewAppSettingsScreen> {
               vertical: AppSizes.paddingS,
             ),
             borderRadius: BorderRadius.circular(AppSizes.radiusS),
-            child: const Center(
+            child: Center(
               child: Text(
-                'OK',
-                style: TextStyle(
+                l10n.ok,
+                style: const TextStyle(
                   color: AppColors.white,
                   fontWeight: FontWeight.w500,
                 ),

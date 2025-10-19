@@ -23,27 +23,23 @@ class DynamicProfileSection extends ConsumerWidget {
   }
 
   Widget _buildProfileContainer(UserModel user) {
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryRed,
-            AppColors.primaryRed.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryRed.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primaryRed,
+              AppColors.primaryRed.withOpacity(0.8),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Row(
+          borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        ),
+        child: Row(
         children: [
           // Profile Picture
           Container(
@@ -94,6 +90,7 @@ class DynamicProfileSection extends ConsumerWidget {
           ),
         ],
       ),
+      ),
     );
   }
 
@@ -121,27 +118,23 @@ class DynamicProfileSection extends ConsumerWidget {
   }
 
   Widget _buildLoadingContainer() {
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryRed,
-            AppColors.primaryRed.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryRed.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primaryRed,
+              AppColors.primaryRed.withOpacity(0.8),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Row(
+          borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        ),
+        child: Row(
         children: [
           Container(
             width: 60,
@@ -188,31 +181,28 @@ class DynamicProfileSection extends ConsumerWidget {
           ),
         ],
       ),
+      ),
     );
   }
 
   Widget _buildErrorContainer(String message) {
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryRed,
-            AppColors.primaryRed.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryRed.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primaryRed,
+              AppColors.primaryRed.withOpacity(0.8),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Row(
+          borderRadius: BorderRadius.circular(AppSizes.radiusM),
+        ),
+        child: Row(
         children: [
           Container(
             width: 60,
@@ -254,6 +244,7 @@ class DynamicProfileSection extends ConsumerWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
