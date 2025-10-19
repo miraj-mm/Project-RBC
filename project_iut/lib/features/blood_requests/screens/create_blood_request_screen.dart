@@ -820,6 +820,15 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
     });
 
     try {
+      // Fetch requester name and phone from users table
+      final userResponse = await SupabaseService.from('users')
+          .select('name, phone')
+          .eq('id', userId)
+          .single();
+
+      final requesterName = userResponse['name'] as String? ?? 'Unknown';
+      final requesterPhone = userResponse['phone'] as String? ?? _contactNumberController.text.trim();
+
       // Combine date and time
       DateTime requiredBy = _requiredByDate!;
       if (_requiredByTime != null) {
@@ -832,17 +841,19 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
         );
       }
 
-      // Create blood request
+      // Create blood request (without id, let DB generate)
       final bloodRequest = BloodRequestModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: '', // Placeholder; DB will generate
         requesterId: userId,
+        requesterName: requesterName,
+        requesterPhone: requesterPhone,
         patientName: _patientNameController.text.trim(),
         bloodGroup: _selectedBloodGroup,
         unitsRequired: _unitsRequired,
         medicalCondition: _medicalConditionController.text.trim(),
         hospitalName: _hospitalNameController.text.trim(),
         hospitalAddress: _hospitalAddressController.text.trim(),
-        contactNumber: _contactNumberController.text.trim(),
+        contactNumber: requesterPhone,
         byStander: _byStanderController.text.trim().isNotEmpty ? _byStanderController.text.trim() : null,
         byStanderContact: _byStanderContactController.text.trim().isNotEmpty ? _byStanderContactController.text.trim() : null,
         status: BloodRequestStatus.active,
@@ -854,7 +865,7 @@ class _CreateBloodRequestScreenState extends ConsumerState<CreateBloodRequestScr
         updatedAt: DateTime.now(),
       );
 
-      // Submit to provider/database
+      // Submit to provider/database (uses toJsonForInsert)
       await ref.read(bloodRequestProvider.notifier).createBloodRequest(bloodRequest);
 
       if (mounted) {

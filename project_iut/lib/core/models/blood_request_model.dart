@@ -15,6 +15,8 @@ enum BloodRequestPriority {
 class BloodRequestModel {
   final String id;
   final String requesterId;
+  final String? requesterName;
+  final String? requesterPhone;
   final String patientName;
   final String bloodGroup;
   final int unitsRequired;
@@ -35,6 +37,8 @@ class BloodRequestModel {
   const BloodRequestModel({
     required this.id,
     required this.requesterId,
+    this.requesterName,
+    this.requesterPhone,
     required this.patientName,
     required this.bloodGroup,
     required this.unitsRequired,
@@ -57,29 +61,44 @@ class BloodRequestModel {
     return BloodRequestModel(
       id: json['id'] as String,
       requesterId: json['requester_id'] as String,
+      requesterName: json['requester_name'] as String?,
+      requesterPhone: json['requester_phone'] as String?,
       patientName: json['patient_name'] as String,
       bloodGroup: json['blood_group'] as String,
-      unitsRequired: json['units_required'] as int,
-      medicalCondition: json['medical_condition'] as String,
+      unitsRequired: (json['units_required'] ?? json['units_needed']) as int,
+      medicalCondition: (json['medical_condition'] ?? json['urgency'] ?? 'Not specified') as String,
       hospitalName: json['hospital_name'] as String,
       hospitalAddress: json['hospital_address'] as String,
-      contactNumber: json['contact_number'] as String,
+      contactNumber: (json['contact_number'] ?? json['requester_phone'] ?? '') as String,
       byStander: json['by_stander'] as String?,
       byStanderContact: json['by_stander_contact'] as String?,
       status: BloodRequestStatus.values.firstWhere(
-        (e) => e.name == json['status'],
+        (e) => e.name.toLowerCase() == (json['status'] as String).toLowerCase(),
         orElse: () => BloodRequestStatus.pending,
       ),
-      priority: BloodRequestPriority.values.firstWhere(
-        (e) => e.name == json['priority'],
-        orElse: () => BloodRequestPriority.normal,
-      ),
-      requiredBy: DateTime.parse(json['required_by'] as String),
+      priority: _mapUrgencyToPriority(json['urgency'] as String? ?? json['priority'] as String?),
+      requiredBy: DateTime.parse((json['required_by'] ?? json['needed_by']) as String),
       additionalNotes: json['additional_notes'] as String?,
       isNgoRequest: json['is_ngo_request'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
+  }
+
+  static BloodRequestPriority _mapUrgencyToPriority(String? urgency) {
+    if (urgency == null) return BloodRequestPriority.normal;
+    switch (urgency.toLowerCase()) {
+      case 'critical':
+        return BloodRequestPriority.critical;
+      case 'high':
+      case 'urgent':
+        return BloodRequestPriority.urgent;
+      case 'medium':
+      case 'low':
+      case 'normal':
+      default:
+        return BloodRequestPriority.normal;
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -105,9 +124,58 @@ class BloodRequestModel {
     };
   }
 
+  /// JSON used for inserting a new blood request into the database.
+  /// Omits server-generated fields like `id`, `created_at`, and `updated_at`.
+  /// Also omits fields not present in the DB schema (e.g., by_stander).
+  Map<String, dynamic> toJsonForInsert() {
+    return {
+      'requester_id': requesterId,
+      'requester_name': requesterName ?? 'Unknown',
+      'requester_phone': requesterPhone ?? contactNumber,
+      'patient_name': patientName,
+      'blood_group': bloodGroup,
+      'units_needed': unitsRequired,
+      'urgency': _priorityToUrgency(priority),
+      'hospital_name': hospitalName,
+      'hospital_address': hospitalAddress,
+      'needed_by': requiredBy.toIso8601String(),
+      'additional_notes': additionalNotes,
+      'status': _statusToDbFormat(status),
+    }..removeWhere((key, value) => value == null);
+  }
+
+  static String _statusToDbFormat(BloodRequestStatus status) {
+    // Database expects capitalized status values: 'Active', 'Fulfilled', 'Cancelled', 'Expired'
+    switch (status) {
+      case BloodRequestStatus.active:
+        return 'Active';
+      case BloodRequestStatus.fulfilled:
+        return 'Fulfilled';
+      case BloodRequestStatus.cancelled:
+        return 'Cancelled';
+      case BloodRequestStatus.expired:
+        return 'Expired';
+      case BloodRequestStatus.pending:
+        return 'Active'; // Map pending to Active for database
+    }
+  }
+
+  static String _priorityToUrgency(BloodRequestPriority priority) {
+    switch (priority) {
+      case BloodRequestPriority.critical:
+        return 'Critical';
+      case BloodRequestPriority.urgent:
+        return 'High';
+      case BloodRequestPriority.normal:
+        return 'Medium';
+    }
+  }
+
   BloodRequestModel copyWith({
     String? id,
     String? requesterId,
+    String? requesterName,
+    String? requesterPhone,
     String? patientName,
     String? bloodGroup,
     int? unitsRequired,
@@ -128,6 +196,8 @@ class BloodRequestModel {
     return BloodRequestModel(
       id: id ?? this.id,
       requesterId: requesterId ?? this.requesterId,
+      requesterName: requesterName ?? this.requesterName,
+      requesterPhone: requesterPhone ?? this.requesterPhone,
       patientName: patientName ?? this.patientName,
       bloodGroup: bloodGroup ?? this.bloodGroup,
       unitsRequired: unitsRequired ?? this.unitsRequired,

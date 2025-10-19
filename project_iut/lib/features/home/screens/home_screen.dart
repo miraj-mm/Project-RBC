@@ -15,7 +15,10 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(context),
-      appBar: const AppTopBar(title: AppStrings.home, showBack: false),
+      appBar: const AppTopBar(
+        title: AppStrings.home,
+        showBack: false,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(
           top: AppSizes.paddingM,
