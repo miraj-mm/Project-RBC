@@ -150,8 +150,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordVisible 
-                                ? Icons.visibility 
+                            _isPasswordVisible
+                                ? Icons.visibility
                                 : Icons.visibility_off,
                             color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                           ),

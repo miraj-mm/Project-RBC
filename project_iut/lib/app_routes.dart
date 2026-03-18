@@ -12,8 +12,8 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/login': (context) => const LoginScreen(),
   '/registration': (context) => const RegistrationScreen(),
   '/otp-verification': (context) {
-    final phoneNumber = ModalRoute.of(context)?.settings.arguments as String?;
-    return OtpVerificationScreen(phoneNumber: phoneNumber);
+    final email = ModalRoute.of(context)?.settings.arguments as String?;
+    return OtpVerificationScreen(email: email);
   },
   '/sign-up': (context) => const SignUpScreen(),
   '/location': (context) => const LocationInputScreen(),

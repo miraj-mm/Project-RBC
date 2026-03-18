@@ -13,7 +13,7 @@ class OtpVerificationScreen extends ConsumerStatefulWidget {
   
   const OtpVerificationScreen({
     super.key,
-    this.phoneNumber,
+    this.email,
   });
 
   @override
@@ -49,13 +49,27 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               const SizedBox(height: AppSizes.paddingXL),
               
               // Instructions
-              Text(
-                AppStrings.enterVerificationCode,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+              const Text(
+                'Enter the 6-digit verification code',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,
               ),
+              
+              const SizedBox(height: AppSizes.paddingM),
+              
+              // Email display
+              if (widget.email != null)
+                Text(
+                  'Sent to ${widget.email}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               
               const SizedBox(height: AppSizes.paddingXXL),
               
@@ -164,10 +178,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/login',
-                        (route) => false,
-                      );
+                      context.go(AppRoutes.login);
                     },
                     child: const Text(
                       AppStrings.loginNow,
@@ -186,6 +197,20 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   }
 
   void _handleVerifyOTP() async {
+    // Ensure email is available before attempting verification
+    if (widget.email == null || widget.email!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email not available. Please restart the sign-in process.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        context.pop();
+      }
+      return;
+    }
+
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         _isLoading = true;
@@ -247,7 +272,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('OTP sent successfully'),
+            content: Text('OTP sent successfully to your email'),
             backgroundColor: AppColors.success,
           ),
         );
