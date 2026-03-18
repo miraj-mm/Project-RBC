@@ -3,28 +3,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/hover_button.dart';
+import '../../blood_requests/screens/blood_requests_screen.dart';
+import '../providers/profile_provider.dart';
+import 'package:intl/intl.dart';
+import '../../../l10n/app_localizations.dart';
 
 class MyActivitiesScreen extends ConsumerWidget {
   const MyActivitiesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final statsAsync = ref.watch(userStatsProvider);
+    final donationsAsync = ref.watch(userDonationsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.getBackgroundColor(context),
-      appBar: const AppTopBar(title: 'My Activities'),
+      appBar: AppTopBar(title: l10n.myActivities),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSizes.paddingM),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Statistics Overview
-            _buildStatisticsOverview(context),
+            _buildStatisticsOverview(context, statsAsync, l10n),
             
             const SizedBox(height: AppSizes.paddingL),
             
             // Donation History Section
             Text(
-              'Donation History',
+              l10n.donationHistory,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -36,24 +44,52 @@ class MyActivitiesScreen extends ConsumerWidget {
             const SizedBox(height: AppSizes.paddingM),
             
             // History List
-            ..._getSampleDonations().map((donation) => 
-              _buildDonationHistoryCard(donation)
-            ).toList(),
-            
-            const SizedBox(height: AppSizes.paddingL),
-            
-            // Empty State or Load More
-            if (_getSampleDonations().isEmpty)
-              _buildEmptyState(context)
-            else
-              _buildLoadMoreButton(),
+            donationsAsync.when(
+              data: (donations) {
+                if (donations.isEmpty) {
+                  return _buildEmptyState(context, l10n);
+                }
+                return Column(
+                  children: donations.map((donation) => 
+                    _buildDonationHistoryCard(context, donation, l10n)
+                  ).toList(),
+                );
+              },
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(AppSizes.paddingXL),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (error, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSizes.paddingXL),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: AppColors.error,
+                      ),
+                      const SizedBox(height: AppSizes.paddingM),
+                      Text(
+                        l10n.failedToLoadDonationHistory,
+                        style: TextStyle(
+                          color: AppColors.getTextSecondaryColor(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatisticsOverview(BuildContext context) {
+  Widget _buildStatisticsOverview(BuildContext context, AsyncValue<UserStats> statsAsync, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -64,7 +100,7 @@ class MyActivitiesScreen extends ConsumerWidget {
             bottom: AppSizes.paddingS,
           ),
           child: Text(
-            'Your Impact Summary',
+            l10n.yourImpactSummary,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -88,40 +124,54 @@ class MyActivitiesScreen extends ConsumerWidget {
               ),
             ],
           ),
-          child: Column(
-            children: [
-          
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  'Total Donations',
-                  '12',
-                  Icons.favorite,
-                  AppColors.primaryRed,
+          child: statsAsync.when(
+            data: (stats) => Row(
+              children: [
+                Expanded(
+                  child: _buildStatItem(
+                    l10n.totalDonations,
+                    '${stats.totalDonations}',
+                    Icons.favorite,
+                    AppColors.primaryRed,
+                  ),
+                ),
+                const SizedBox(width: AppSizes.paddingM),
+                Expanded(
+                  child: _buildStatItem(
+                    l10n.livesSaved,
+                    '${stats.livesSaved}',
+                    Icons.people,
+                    AppColors.success,
+                  ),
+                ),
+                const SizedBox(width: AppSizes.paddingM),
+                Expanded(
+                  child: _buildStatItem(
+                    l10n.bloodVolume,
+                    '${(stats.totalDonations * 0.5).toStringAsFixed(1)}L',
+                    Icons.water_drop,
+                    AppColors.info,
+                  ),
+                ),
+              ],
+            ),
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(AppSizes.paddingL),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+            error: (error, _) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSizes.paddingL),
+                child: Text(
+                  l10n.unableToLoadStatistics,
+                  style: TextStyle(
+                    color: AppColors.getTextSecondaryColor(context),
+                  ),
                 ),
               ),
-              const SizedBox(width: AppSizes.paddingM),
-              Expanded(
-                child: _buildStatItem(
-                  'Lives Saved',
-                  '36',
-                  Icons.people,
-                  AppColors.success,
-                ),
-              ),
-              const SizedBox(width: AppSizes.paddingM),
-              Expanded(
-                child: _buildStatItem(
-                  'Blood Volume',
-                  '6.0L',
-                  Icons.water_drop,
-                  AppColors.info,
-                ),
-              ),
-            ],
-          ),
-            ],
+            ),
           ),
         ),
       ],
@@ -165,24 +215,20 @@ class MyActivitiesScreen extends ConsumerWidget {
     ));
   }
 
-  Widget _buildDonationHistoryCard(Map<String, dynamic> donation) {
-    return Builder(builder: (context) => Container(
+  Widget _buildDonationHistoryCard(BuildContext context, DonationRecord donation, AppLocalizations l10n) {
+    final dateFormat = DateFormat('MMM dd, yyyy');
+    final donationDate = dateFormat.format(donation.donationDate);
+    
+    return Card(
       margin: const EdgeInsets.only(bottom: AppSizes.paddingM),
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        color: AppColors.getCardBackgroundColor(context),
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grey.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      color: AppColors.getCardBackgroundColor(context),
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -191,22 +237,27 @@ class MyActivitiesScreen extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(AppSizes.paddingS),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(donation['status']).withOpacity(0.1),
+                      color: AppColors.success.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      _getStatusIcon(donation['status']),
-                      color: _getStatusColor(donation['status']),
+                    child: const Icon(
+                      Icons.check_circle,
+                      color: AppColors.success,
                       size: AppSizes.iconS,
                     ),
                   ),
                   const SizedBox(width: AppSizes.paddingS),
-                  Text(
-                    donation['location'],
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.getTextPrimaryColor(context),
+                  Flexible(
+                    child: Text(
+                      donation.hospitalName.isNotEmpty 
+                        ? donation.hospitalName 
+                        : l10n.bloodDonation,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.getTextPrimaryColor(context),
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -217,15 +268,15 @@ class MyActivitiesScreen extends ConsumerWidget {
                   vertical: AppSizes.paddingXS,
                 ),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(donation['status']).withOpacity(0.1),
+                  color: AppColors.success.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppSizes.radiusS),
                 ),
                 child: Text(
-                  donation['status'],
-                  style: TextStyle(
+                  l10n.completed,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: _getStatusColor(donation['status']),
+                    color: AppColors.success,
                   ),
                 ),
               ),
@@ -243,21 +294,7 @@ class MyActivitiesScreen extends ConsumerWidget {
               ),
               const SizedBox(width: AppSizes.paddingXS),
               Text(
-                donation['date'],
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.getTextSecondaryColor(context),
-                ),
-              ),
-              const SizedBox(width: AppSizes.paddingM),
-              Icon(
-                Icons.access_time,
-                size: AppSizes.iconXS,
-                color: AppColors.getTextSecondaryColor(context),
-              ),
-              const SizedBox(width: AppSizes.paddingXS),
-              Text(
-                donation['time'],
+                donationDate,
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.getTextSecondaryColor(context),
@@ -270,14 +307,14 @@ class MyActivitiesScreen extends ConsumerWidget {
           
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.water_drop,
                 size: AppSizes.iconXS,
                 color: AppColors.primaryRed,
               ),
               const SizedBox(width: AppSizes.paddingXS),
               Text(
-                'Blood Type: ${donation['bloodType']}',
+                '${l10n.bloodType}: ${donation.bloodGroup}',
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.getTextPrimaryColor(context),
@@ -286,7 +323,7 @@ class MyActivitiesScreen extends ConsumerWidget {
               ),
               const Spacer(),
               Text(
-                '${donation['volume']}ml',
+                '${donation.unitsDonated * 500}ml',
                 style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.primaryRed,
@@ -296,23 +333,43 @@ class MyActivitiesScreen extends ConsumerWidget {
             ],
           ),
           
-          if (donation['notes'] != null && donation['notes'].isNotEmpty) ...[
+          if (donation.notes != null && donation.notes!.isNotEmpty) ...[
             const SizedBox(height: AppSizes.paddingS),
-            Text(
-              'Notes: ${donation['notes']}',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.getTextSecondaryColor(context),
-                fontStyle: FontStyle.italic,
+            Container(
+              padding: const EdgeInsets.all(AppSizes.paddingS),
+              decoration: BoxDecoration(
+                color: AppColors.grey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppSizes.radiusS),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.note,
+                    size: AppSizes.iconXS,
+                    color: AppColors.getTextSecondaryColor(context),
+                  ),
+                  const SizedBox(width: AppSizes.paddingXS),
+                  Expanded(
+                    child: Text(
+                      donation.notes!,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.getTextSecondaryColor(context),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-        ],
+          ],
+        ),
       ),
-    ));
+    );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(AppSizes.paddingXL),
       decoration: BoxDecoration(
@@ -335,7 +392,7 @@ class MyActivitiesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSizes.paddingM),
           Text(
-            'No Donation History',
+            l10n.noDonationHistory,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -344,7 +401,7 @@ class MyActivitiesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSizes.paddingS),
           Text(
-            'Your donation history will appear here once you start donating blood.',
+            l10n.donationHistoryMessage,
             style: TextStyle(
               fontSize: 14,
               color: AppColors.getTextSecondaryColor(context),
@@ -355,17 +412,22 @@ class MyActivitiesScreen extends ConsumerWidget {
           HoverButton(
             baseColor: AppColors.primaryRed,
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BloodRequestsScreen(),
+                ),
+              );
             },
             padding: const EdgeInsets.symmetric(
               horizontal: AppSizes.paddingL,
               vertical: AppSizes.paddingM,
             ),
             borderRadius: BorderRadius.circular(AppSizes.radiusS),
-            child: const Center(
+            child: Center(
               child: Text(
-                'Start Donating',
-                style: TextStyle(
+                l10n.startDonating,
+                style: const TextStyle(
                   color: AppColors.white,
                   fontWeight: FontWeight.w600,
                 ),
@@ -377,99 +439,4 @@ class MyActivitiesScreen extends ConsumerWidget {
       ),
     );
   }
-
-  Widget _buildLoadMoreButton() {
-    return Builder(builder: (context) => HoverButton(
-      baseColor: AppColors.getCardBackgroundColor(context),
-      onPressed: () {
-        // TODO: Implement load more functionality
-      },
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      borderRadius: BorderRadius.circular(AppSizes.radiusM),
-      border: Border.all(color: AppColors.getBorderColor(context)),
-      child: Center(
-        child: Text(
-          'Load More',
-          style: TextStyle(
-            color: AppColors.getTextPrimaryColor(context),
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    ));
-  }
-
-  // Sample data - replace with actual API calls
-  List<Map<String, dynamic>> _getSampleDonations() {
-    return [
-      {
-        'id': '1',
-        'location': 'IUT Blood Bank',
-        'date': 'Oct 10, 2024',
-        'time': '10:30 AM',
-        'bloodType': 'O+',
-        'volume': 500,
-        'status': 'Completed',
-        'notes': 'Successful donation, no complications',
-      },
-      {
-        'id': '2',
-        'location': 'Dhaka Medical College',
-        'date': 'Sep 15, 2024',
-        'time': '2:15 PM',
-        'bloodType': 'O+',
-        'volume': 500,
-        'status': 'Completed',
-        'notes': 'Emergency donation for accident victim',
-      },
-      {
-        'id': '3',
-        'location': 'City Hospital',
-        'date': 'Aug 20, 2024',
-        'time': '11:00 AM',
-        'bloodType': 'O+',
-        'volume': 450,
-        'status': 'Completed',
-        'notes': null,
-      },
-      {
-        'id': '4',
-        'location': 'Red Crescent Center',
-        'date': 'Jul 25, 2024',
-        'time': '9:45 AM',
-        'bloodType': 'O+',
-        'volume': 500,
-        'status': 'Scheduled',
-        'notes': 'Upcoming donation appointment',
-      },
-    ];
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return AppColors.success;
-      case 'scheduled':
-        return AppColors.info;
-      case 'cancelled':
-        return AppColors.error;
-      default:
-        return AppColors.warning;
-    }
-  }
-
-  IconData _getStatusIcon(String status) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return Icons.check_circle;
-      case 'scheduled':
-        return Icons.schedule;
-      case 'cancelled':
-        return Icons.cancel;
-      default:
-        return Icons.info;
-    }
-  }
 }
-

@@ -1,6 +1,6 @@
 class AppStrings {
   // App Info
-  static const String appName = 'DONOR';
+  static const String appName = 'Project RBC';
   static const String appVersion = '1.0.0';
   
   // Authentication

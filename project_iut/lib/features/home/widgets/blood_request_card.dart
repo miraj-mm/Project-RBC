@@ -18,25 +18,20 @@ class BloodRequestCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     
-    return Container(
+    return Card(
       margin: const EdgeInsets.only(bottom: AppSizes.marginM),
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        color: isDarkMode ? AppColors.darkCard : AppColors.white,
+      color: isDarkMode ? AppColors.darkCard : AppColors.white,
+      elevation: 6,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        border: Border.all(
+        side: BorderSide(
           color: _getUrgencyColor().withOpacity(0.3),
           width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
-      child: Column(
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header Row with urgency badge
@@ -305,6 +300,7 @@ class BloodRequestCard extends StatelessWidget {
           ),
         ],
       ),
+        ),
     );
   }
 

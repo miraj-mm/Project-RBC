@@ -1,77 +1,136 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app_router.dart';
 import '../../../core/core.dart';
 import 'edit_profile_screen.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/hover_button.dart';
-import '../../home/providers/home_user_provider.dart';
+import '../providers/profile_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../location/screens/location_tracking_screen.dart';
 import 'my_activities_screen.dart';
-import 'app_settings_screen.dart';
+import 'new_app_settings_screen.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentHomeUserProvider);
+    final l10n = AppLocalizations.of(context)!;
+    final profileAsync = ref.watch(userProfileProvider);
+    final statsAsync = ref.watch(userStatsProvider);
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     
     return Scaffold(
       backgroundColor: isDarkMode ? AppColors.darkBackground : AppColors.background,
-      appBar: const AppTopBar(title: AppStrings.profile, showBack: false),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          top: AppSizes.paddingM,
-          bottom: AppSizes.paddingM,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Dynamic Profile Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
-              child: _buildProfileHeader(context, user, isDarkMode),
+      appBar: AppTopBar(title: l10n.profile, showBack: false),
+      body: profileAsync.when(
+        data: (user) {
+          if (user == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.person_off, size: 64, color: AppColors.grey),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.noUserDataFound,
+                    style: TextStyle(
+                      color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(
+              top: AppSizes.paddingM,
+              bottom: AppSizes.paddingM,
             ),
-            
-            const SizedBox(height: AppSizes.paddingL),
-            
-            // Your Impact Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
-              child: Text(
-                'Your Impact',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Dynamic Profile Header
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
+                  child: _buildProfileHeader(context, user, isDarkMode),
+                ),
+                
+                const SizedBox(height: AppSizes.paddingL),
+                
+                // Your Impact Title
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
+                  child: Text(
+                    l10n.yourImpact,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: AppSizes.paddingL),
+                
+                // Statistics Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
+                  child: _buildStatisticsSection(context, statsAsync, isDarkMode),
+                ),
+                
+                const SizedBox(height: AppSizes.paddingL),
+                
+                // Settings & Support
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
+                  child: _buildSettingsSection(context, ref, isDarkMode),
+                ),
+                
+                const SizedBox(height: AppSizes.paddingXL),
+              ],
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              const SizedBox(height: 16),
+              Text(
+                l10n.errorLoadingProfile,
                 style: TextStyle(
+                  color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Theme.of(context).brightness == Brightness.dark 
-                      ? AppColors.darkTextPrimary 
-                      : AppColors.textPrimary,
-                  letterSpacing: 0.3,
                 ),
               ),
-            ),
-            
-            const SizedBox(height: AppSizes.paddingL),
-            
-            // Statistics Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
-              child: _buildStatisticsSection(context, user, isDarkMode),
-            ),
-            
-            const SizedBox(height: AppSizes.paddingL),
-            
-            // Settings & Support
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingM),
-              child: _buildSettingsSection(context, ref, isDarkMode),
-            ),
-            
-            const SizedBox(height: AppSizes.paddingXL),
-          ],
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  error.toString(),
+                  style: TextStyle(
+                    color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(userProfileProvider.notifier).loadUserProfile(),
+                child: Text(l10n.retry),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -194,109 +253,125 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatisticsSection(BuildContext context, UserModel user, bool isDarkMode) {
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingM),
-      decoration: BoxDecoration(
-        color: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSizes.radiusM),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+  Widget _buildStatisticsSection(BuildContext context, AsyncValue<UserStats> statsAsync, bool isDarkMode) {
+    final l10n = AppLocalizations.of(context)!;
+    return Card(
+      color: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusM)),
+      child: Container(
+        padding: const EdgeInsets.all(AppSizes.paddingM),
+        child: statsAsync.when(
+        data: (stats) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IntrinsicHeight(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatCard(
+                        context,
+                        l10n.livesSaved,
+                        '${stats.livesSaved}',
+                        Icons.favorite,
+                        AppColors.primaryRed,
+                        isDarkMode,
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.paddingS),
+                    Expanded(
+                      child: _buildStatCard(
+                        context,
+                        l10n.lastDonation,
+                        _getLastDonationText(stats.lastDonationDate, l10n),
+                        Icons.bloodtype,
+                        AppColors.info,
+                        isDarkMode,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSizes.paddingM),
+              // My Activities Button
+              HoverButton(
+                baseColor: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MyActivitiesScreen(),
+                    ),
+                  );
+                },
+                padding: const EdgeInsets.all(AppSizes.paddingM),
+                borderRadius: BorderRadius.circular(AppSizes.radiusS),
+                border: Border.all(color: AppColors.grey.withOpacity(0.2)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppSizes.paddingS),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.history,
+                        color: AppColors.warning,
+                        size: AppSizes.iconM,
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.paddingS),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        l10n.myActivities,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                          size: AppSizes.iconS,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+        loading: () => const Center(
+          child: Padding(
+            padding: EdgeInsets.all(AppSizes.paddingL),
+            child: CircularProgressIndicator(),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IntrinsicHeight(
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    context,
-                    'Lives Saved',
-                    '${user.livesSaved}',
-                    Icons.favorite,
-                    AppColors.primaryRed,
-                    isDarkMode,
-                  ),
-                ),
-                const SizedBox(width: AppSizes.paddingS),
-                Expanded(
-                  child: _buildStatCard(
-                    context,
-                    'Last Donation',
-                    _getLastDonationText(user.lastDonationDate),
-                    Icons.bloodtype,
-                    AppColors.info,
-                    isDarkMode,
-                  ),
-                ),
-              ],
+        ),
+        error: (error, stack) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSizes.paddingL),
+            child: Text(
+              l10n.unableToLoadStatistics,
+              style: TextStyle(
+                color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+              ),
             ),
           ),
-          const SizedBox(height: AppSizes.paddingM),
-          // My Activities Button
-          HoverButton(
-            baseColor: isDarkMode ? AppColors.darkCard : AppColors.cardBackground,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MyActivitiesScreen(),
-                ),
-              );
-            },
-            padding: const EdgeInsets.all(AppSizes.paddingM),
-            borderRadius: BorderRadius.circular(AppSizes.radiusS),
-            border: Border.all(color: AppColors.grey.withOpacity(0.2)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSizes.paddingS),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.history,
-                    color: AppColors.warning,
-                    size: AppSizes.iconM,
-                  ),
-                ),
-                const SizedBox(width: AppSizes.paddingS),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    'My Activities',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                    ),
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Icon(
-                      Icons.arrow_forward_ios,
-                      color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                      size: AppSizes.iconS,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
+        ),
       ),
     );
   }
@@ -338,13 +413,14 @@ class ProfileScreen extends ConsumerWidget {
 
 
   Widget _buildSettingsSection(BuildContext context, WidgetRef ref, bool isDarkMode) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.only(left: AppSizes.paddingM, bottom: AppSizes.paddingS),
           child: Text(
-            'Settings & Support',
+            l10n.settingsAndSupport,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -355,7 +431,7 @@ class ProfileScreen extends ConsumerWidget {
         ),
         _buildSettingsItem(
           context,
-          'Location Tracking',
+          l10n.locationTracking,
           Icons.location_on,
           AppColors.success,
           () {
@@ -370,14 +446,14 @@ class ProfileScreen extends ConsumerWidget {
         ),
         _buildSettingsItem(
           context,
-          'App Settings',
+          l10n.appSettings,
           Icons.settings,
           isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
           () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const AppSettingsScreen(),
+                builder: (context) => const NewAppSettingsScreen(),
               ),
             );
           },
@@ -404,9 +480,9 @@ class ProfileScreen extends ConsumerWidget {
                 size: AppSizes.iconM,
               ),
               const SizedBox(width: AppSizes.paddingS),
-              const Text(
-                'Logout',
-                style: TextStyle(
+              Text(
+                l10n.logout,
+                style: const TextStyle(
                   color: AppColors.primaryRed,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -421,7 +497,7 @@ class ProfileScreen extends ConsumerWidget {
         // Version Info
         Center(
           child: Text(
-            'Version 1.0.0',
+            l10n.version,
             style: TextStyle(
               color: (isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary).withOpacity(0.7),
               fontSize: 12,
@@ -502,8 +578,8 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  String _getLastDonationText(DateTime? lastDonationDate) {
-    if (lastDonationDate == null) return 'Never';
+  String _getLastDonationText(DateTime? lastDonationDate, AppLocalizations l10n) {
+    if (lastDonationDate == null) return l10n.never;
     
     final now = DateTime.now();
     final difference = now.difference(lastDonationDate).inDays;
@@ -520,30 +596,66 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref, bool isDarkMode) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Logout', 
+          l10n.logoutConfirmTitle, 
           style: TextStyle(color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary),
         ),
         content: Text(
-          'Are you sure you want to logout?',
+          l10n.logoutConfirmMessage,
           style: TextStyle(color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(authStateProvider.notifier).signOut();
+            onPressed: () async {
+              // Store context reference before async operations
+              final navigator = Navigator.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final goRouter = GoRouter.of(context);
+              
+              // Close the confirmation dialog first
+              navigator.pop();
+              
+              try {
+                debugPrint('🚪 ProfileScreen: Logout initiated');
+                
+                // Sign out the user
+                await ref.read(authStateProvider.notifier).signOut();
+                debugPrint('✅ ProfileScreen: Sign out complete');
+                
+                // Wait a bit for auth state to propagate
+                await Future.delayed(const Duration(milliseconds: 200));
+                
+                // Navigate to login - force replace the entire stack
+                debugPrint('🔄 ProfileScreen: Navigating to login');
+                goRouter.go(AppRoutes.login);
+                
+              } catch (e) {
+                debugPrint('❌ ProfileScreen: Logout error: $e');
+                
+                // Show error message
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Logout failed: ${e.toString()}'),
+                    backgroundColor: AppColors.error,
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+              }
             },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: AppColors.primaryRed),
+            child: Text(
+              l10n.logout,
+              style: const TextStyle(
+                color: AppColors.primaryRed,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

@@ -5,10 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../core/core.dart';
 import '../../../core/widgets/app_top_bar.dart';
+import '../providers/auth_provider.dart';
 
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
-  final String? email;
+  final String? phoneNumber; // This will now contain email
   
   const OtpVerificationScreen({
     super.key,
@@ -201,21 +202,38 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       });
 
       try {
-        // Verify OTP via Supabase
-        await SupabaseService.verifyOtp(
-          email: widget.email,
+        print('🔐 Verifying OTP for: ${widget.phoneNumber}');
+        
+        // Verify OTP with email - this will authenticate the user temporarily
+        await ref.read(authStateProvider.notifier).verifyOtp(
+          phone: widget.phoneNumber ?? '', // This is actually the email
           token: _otpCode,
         );
         
+        print('✅ OTP verified! User authenticated temporarily for signup');
+        
         if (mounted) {
-          context.push(AppRoutes.signUp);
+          print('📝 Navigating to sign-up page...');
+          // Use pushReplacement to prevent back navigation to OTP screen
+          context.pushReplacement(AppRoutes.signUp, extra: widget.phoneNumber);
         }
       } catch (e) {
+        print('❌ OTP verification failed: $e');
         if (mounted) {
+          String errorMessage = 'OTP verification failed';
+          final errorStr = e.toString().toLowerCase();
+          
+          if (errorStr.contains('invalid') || errorStr.contains('expired')) {
+            errorMessage = 'Invalid or expired OTP. Please try again.';
+          } else if (errorStr.contains('token')) {
+            errorMessage = 'Invalid OTP code. Please check and try again.';
+          }
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('OTP verification failed: ${e.toString()}'),
+              content: Text(errorMessage),
               backgroundColor: AppColors.error,
+              duration: const Duration(seconds: 3),
             ),
           );
         }
@@ -231,12 +249,10 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
   void _handleResendOTP() async {
     try {
-      if (widget.email == null || widget.email!.isEmpty) {
-        throw Exception('Email not available');
-      }
-      
-      // Resend OTP via Supabase
-      await SupabaseService.signInWithOtp(email: widget.email);
+      // Resend OTP to email
+      await ref.read(authStateProvider.notifier).signInWithPhone(
+        phone: widget.phoneNumber ?? '', // This is actually the email
+      );
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -4,7 +4,7 @@ import 'bus_route_info_screen.dart';
 import 'bus_route_card.dart';
 
 class BusRouteSection extends StatelessWidget {
-  const BusRouteSection({Key? key}) : super(key: key);
+  const BusRouteSection({super.key});
 
   @override
   Widget build(BuildContext context) {
