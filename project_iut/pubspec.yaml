@@ -75,8 +75,8 @@ dependencies:
   geolocator: ^10.1.0
   geocoding: ^2.1.1
   
-  # Background location tracking
-  background_location: ^0.13.0
+  # Background location tracking - using flutter_background_service
+  flutter_background_service: ^5.1.0
   
   # Maps
   google_maps_flutter: ^2.5.0

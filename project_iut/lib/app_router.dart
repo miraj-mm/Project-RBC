@@ -98,8 +98,8 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.otpVerification,
       name: 'otp-verification',
       builder: (context, state) {
-        final phoneNumber = state.extra as String?;
-        return OtpVerificationScreen(phoneNumber: phoneNumber);
+        final email = state.extra as String?;
+        return OtpVerificationScreen(email: email);
       },
     ),
     

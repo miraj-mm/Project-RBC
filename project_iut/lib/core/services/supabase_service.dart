@@ -58,22 +58,42 @@ class SupabaseService {
   }
 
   static Future<void> signInWithOtp({
-    required String phone,
+    String? phone,
+    String? email,
   }) async {
-    await instance.auth.signInWithOtp(
-      phone: phone,
-    );
+    if (phone != null) {
+      await instance.auth.signInWithOtp(
+        phone: phone,
+      );
+    } else if (email != null) {
+      await instance.auth.signInWithOtp(
+        email: email,
+      );
+    } else {
+      throw Exception('Either phone or email must be provided');
+    }
   }
 
   static Future<AuthResponse> verifyOtp({
-    required String phone,
+    String? phone,
+    String? email,
     required String token,
   }) async {
-    return await instance.auth.verifyOTP(
-      phone: phone,
-      token: token,
-      type: OtpType.sms,
-    );
+    if (phone != null) {
+      return await instance.auth.verifyOTP(
+        phone: phone,
+        token: token,
+        type: OtpType.sms,
+      );
+    } else if (email != null) {
+      return await instance.auth.verifyOTP(
+        email: email,
+        token: token,
+        type: OtpType.email,
+      );
+    } else {
+      throw Exception('Either phone or email must be provided');
+    }
   }
 
   // Database helpers

@@ -14,14 +14,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _mobileController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _mobileController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -76,18 +76,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Mobile Number Field
+                    // Email Field
                     TextFormField(
-                      controller: _mobileController,
-                      keyboardType: TextInputType.phone,
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       style: TextStyle(
                         color: isDarkMode ? AppColors.darkTextPrimary : AppColors.textPrimary,
                       ),
                       decoration: InputDecoration(
-                        labelText: AppStrings.mobile,
-                        hintText: 'Enter Your Mobile Number',
+                        labelText: 'Email Address',
+                        hintText: 'Enter your email',
                         prefixIcon: Icon(
-                          Icons.phone,
+                          Icons.email,
                           color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                         ),
                         labelStyle: TextStyle(
@@ -99,10 +99,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please Enter Your Mobile Number';
+                          return 'Please Enter Your Email';
                         }
-                        if (value.length < 10) {
-                          return 'Please Enter a Valid Mobile Number';
+                        if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
+                          return 'Please Enter a Valid Email';
                         }
                         return null;
                       },
@@ -132,8 +132,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordVisible 
-                                ? Icons.visibility 
+                            _isPasswordVisible
+                                ? Icons.visibility
                                 : Icons.visibility_off,
                             color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
                           ),
@@ -247,8 +247,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
 
       try {
-        // TODO: Implement login logic with your authentication provider
-        await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+        final email = _emailController.text.trim();
+        final password = _passwordController.text.trim();
+        
+        // Sign in with email and password
+        await SupabaseService.signIn(
+          email: email,
+          password: password,
+        );
         
         if (mounted) {
           context.go(AppRoutes.main);

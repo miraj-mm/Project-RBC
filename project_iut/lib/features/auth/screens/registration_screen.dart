@@ -15,12 +15,12 @@ class RegistrationScreen extends ConsumerStatefulWidget {
 
 class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _mobileController = TextEditingController();
+  final _emailController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _mobileController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -63,21 +63,21 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Mobile Number Field
+                    // Email Field
                     TextFormField(
-                      controller: _mobileController,
-                      keyboardType: TextInputType.phone,
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: AppStrings.mobile,
-                        hintText: 'Enter Your Mobile Number',
-                        prefixIcon: Icon(Icons.phone),
+                        labelText: 'Email Address',
+                        hintText: 'Enter your email',
+                        prefixIcon: Icon(Icons.email),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please Enter Your Mobile Number';
+                          return 'Please Enter Your Email';
                         }
-                        if (value.length < 10) {
-                          return 'Please Enter a Valid Mobile Number';
+                        if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
+                          return 'Please Enter a Valid Email';
                         }
                         return null;
                       },
@@ -148,11 +148,33 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       });
 
       try {
-        // TODO: Implement OTP generation logic
-        await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+        final email = _emailController.text.trim();
+        
+        // Check if email already exists
+        final existingUser = await SupabaseService.instance.from('profiles').select().eq('email', email).maybeSingle();
+        if (existingUser != null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Email already exists. Please login or use a different email.'),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+          return;
+        }
+        
+        // Send OTP via email using Supabase
+        await SupabaseService.signInWithOtp(email: email);
         
         if (mounted) {
-          context.push(AppRoutes.otpVerification, extra: _mobileController.text);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('OTP sent to your email. Check your inbox.'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context.push(AppRoutes.otpVerification, extra: email);
         }
       } catch (e) {
         if (mounted) {

@@ -8,11 +8,11 @@ import '../../../core/widgets/app_top_bar.dart';
 
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
-  final String? phoneNumber;
+  final String? email;
   
   const OtpVerificationScreen({
     super.key,
-    this.phoneNumber,
+    this.email,
   });
 
   @override
@@ -56,6 +56,19 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 textAlign: TextAlign.center,
               ),
               
+              const SizedBox(height: AppSizes.paddingM),
+              
+              // Email display
+              if (widget.email != null)
+                Text(
+                  'Sent to ${widget.email}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              
               const SizedBox(height: AppSizes.paddingXXL),
               
               // OTP Input
@@ -63,7 +76,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 key: _formKey,
                 child: PinCodeTextField(
                   appContext: context,
-                  length: 4,
+                  length: 6,
                   controller: _otpController,
                   animationType: AnimationType.fade,
                   pinTheme: PinTheme(
@@ -94,8 +107,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter OTP';
                     }
-                    if (value.length != 4) {
-                      return 'Please enter 4 digit OTP';
+                    if (value.length != 6) {
+                      return 'Please enter 6 digit OTP';
                     }
                     return null;
                   },
@@ -128,7 +141,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               
               // Proceed Button
               ElevatedButton(
-                onPressed: (_isLoading || _otpCode.length != 4) ? null : _handleVerifyOTP,
+                onPressed: (_isLoading || _otpCode.length != 6) ? null : _handleVerifyOTP,
                 child: _isLoading
                     ? const SizedBox(
                         height: 20,
@@ -163,10 +176,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/login',
-                        (route) => false,
-                      );
+                      context.go(AppRoutes.login);
                     },
                     child: const Text(
                       AppStrings.loginNow,
@@ -191,8 +201,11 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       });
 
       try {
-        // TODO: Implement OTP verification logic
-        await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+        // Verify OTP via Supabase
+        await SupabaseService.verifyOtp(
+          email: widget.email,
+          token: _otpCode,
+        );
         
         if (mounted) {
           context.push(AppRoutes.signUp);
@@ -218,13 +231,17 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
   void _handleResendOTP() async {
     try {
-      // TODO: Implement resend OTP logic
-      await Future.delayed(const Duration(seconds: 1)); // Simulate API call
+      if (widget.email == null || widget.email!.isEmpty) {
+        throw Exception('Email not available');
+      }
+      
+      // Resend OTP via Supabase
+      await SupabaseService.signInWithOtp(email: widget.email);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('OTP sent successfully'),
+            content: Text('OTP sent successfully to your email'),
             backgroundColor: AppColors.success,
           ),
         );
