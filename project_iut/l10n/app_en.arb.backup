@@ -1,0 +1,381 @@
+{
+  "@@locale": "en",
+  "appName": "DONOR",
+  "@appName": {
+    "description": "The app name"
+  },
+  "appVersion": "Version",
+  "@appVersion": {
+    "description": "App version label"
+  },
+  
+  "login": "Login",
+  "@login": {
+    "description": "Login button text"
+  },
+  "signUp": "Sign Up",
+  "@signUp": {
+    "description": "Sign up button text"
+  },
+  "registration": "Registration",
+  "@registration": {
+    "description": "Registration page title"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  "verifyOtp": "Verify OTP",
+  "@verifyOtp": {
+    "description": "Verify OTP button text"
+  },
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {
+    "description": "Forgot password link text"
+  },
+  
+  "home": "Home",
+  "@home": {
+    "description": "Home navigation tab"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile navigation tab"
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Notifications navigation tab"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings navigation tab"
+  },
+  
+  "wantToBeADonor": "Want to be a donor?",
+  "@wantToBeADonor": {
+    "description": "Prompt to become a donor"
+  },
+  "requestForBlood": "Request for Blood",
+  "@requestForBlood": {
+    "description": "Request blood button text"
+  },
+  "urgentRequests": "Urgent Requests",
+  "@urgentRequests": {
+    "description": "Urgent requests section title"
+  },
+  "bloodRequest": "Blood Request",
+  "@bloodRequest": {
+    "description": "Blood request page title"
+  },
+  "bloodRequests": "Blood Requests",
+  "@bloodRequests": {
+    "description": "Blood requests page title"
+  },
+  
+  "medicalCondition": "Medical Condition",
+  "@medicalCondition": {
+    "description": "Medical condition field label"
+  },
+  "medicalCollege": "Medical College",
+  "@medicalCollege": {
+    "description": "Medical college field label"
+  },
+  "units": "Units",
+  "@units": {
+    "description": "Blood units label"
+  },
+  "patientName": "Patient Name",
+  "@patientName": {
+    "description": "Patient name field label"
+  },
+  "hospital": "Hospital",
+  "@hospital": {
+    "description": "Hospital field label"
+  },
+  "location": "Location",
+  "@location": {
+    "description": "Location field label"
+  },
+  
+  "editProfile": "Edit Profile",
+  "@editProfile": {
+    "description": "Edit profile button text"
+  },
+  "myActivities": "My Activities",
+  "@myActivities": {
+    "description": "My activities page title"
+  },
+  "ongoingBloodDonation": "Ongoing Blood Donation",
+  "@ongoingBloodDonation": {
+    "description": "Ongoing donation section title"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button text"
+  },
+  "yourImpact": "Your Impact",
+  "@yourImpact": {
+    "description": "Your impact section title"
+  },
+  "livesSaved": "Lives Saved",
+  "@livesSaved": {
+    "description": "Lives saved statistic label"
+  },
+  "totalDonations": "Total Donations",
+  "@totalDonations": {
+    "description": "Total donations statistic label"
+  },
+  "pendingRequests": "Pending Requests",
+  "@pendingRequests": {
+    "description": "Pending requests statistic label"
+  },
+  
+  "areYouDonatingToday": "Are you donating today?",
+  "@areYouDonatingToday": {
+    "description": "Donation confirmation prompt"
+  },
+  "call": "Call",
+  "@call": {
+    "description": "Call button text"
+  },
+  "reasonForCancellation": "Reason for Cancellation",
+  "@reasonForCancellation": {
+    "description": "Cancellation reason field label"
+  },
+  "startDonating": "Start Donating",
+  "@startDonating": {
+    "description": "Start donating button text"
+  },
+  
+  "bloodGroup": "Blood Group",
+  "@bloodGroup": {
+    "description": "Blood group field label"
+  },
+  "aPositive": "A+",
+  "@aPositive": {
+    "description": "Blood group A positive"
+  },
+  "aNegative": "A-",
+  "@aNegative": {
+    "description": "Blood group A negative"
+  },
+  "bPositive": "B+",
+  "@bPositive": {
+    "description": "Blood group B positive"
+  },
+  "bNegative": "B-",
+  "@bNegative": {
+    "description": "Blood group B negative"
+  },
+  "abPositive": "AB+",
+  "@abPositive": {
+    "description": "Blood group AB positive"
+  },
+  "abNegative": "AB-",
+  "@abNegative": {
+    "description": "Blood group AB negative"
+  },
+  "oPositive": "O+",
+  "@oPositive": {
+    "description": "Blood group O positive"
+  },
+  "oNegative": "O-",
+  "@oNegative": {
+    "description": "Blood group O negative"
+  },
+  
+  "yes": "Yes",
+  "@yes": {
+    "description": "Yes button text"
+  },
+  "no": "No",
+  "@no": {
+    "description": "No button text"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "submit": "Submit",
+  "@submit": {
+    "description": "Submit button text"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button text"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit button text"
+  },
+  "search": "Search",
+  "@search": {
+    "description": "Search button text"
+  },
+  "filter": "Filter",
+  "@filter": {
+    "description": "Filter button text"
+  },
+  
+  "name": "Name",
+  "@name": {
+    "description": "Name field label"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  "phone": "Phone",
+  "@phone": {
+    "description": "Phone field label"
+  },
+  "address": "Address",
+  "@address": {
+    "description": "Address field label"
+  },
+  "age": "Age",
+  "@age": {
+    "description": "Age field label"
+  },
+  "gender": "Gender",
+  "@gender": {
+    "description": "Gender field label"
+  },
+  "male": "Male",
+  "@male": {
+    "description": "Male gender option"
+  },
+  "female": "Female",
+  "@female": {
+    "description": "Female gender option"
+  },
+  "other": "Other",
+  "@other": {
+    "description": "Other gender option"
+  },
+  
+  "donationHistory": "Donation History",
+  "@donationHistory": {
+    "description": "Donation history page title"
+  },
+  "requestHistory": "Request History",
+  "@requestHistory": {
+    "description": "Request history page title"
+  },
+  "eligibilityCheck": "Eligibility Check",
+  "@eligibilityCheck": {
+    "description": "Eligibility check page title"
+  },
+  "donationSuccess": "Donation Success",
+  "@donationSuccess": {
+    "description": "Donation success page title"
+  },
+  "createRequest": "Create Request",
+  "@createRequest": {
+    "description": "Create request button text"
+  },
+  
+  "date": "Date",
+  "@date": {
+    "description": "Date field label"
+  },
+  "time": "Time",
+  "@time": {
+    "description": "Time field label"
+  },
+  "status": "Status",
+  "@status": {
+    "description": "Status field label"
+  },
+  "pending": "Pending",
+  "@pending": {
+    "description": "Pending status"
+  },
+  "accepted": "Accepted",
+  "@accepted": {
+    "description": "Accepted status"
+  },
+  "rejected": "Rejected",
+  "@rejected": {
+    "description": "Rejected status"
+  },
+  "completed": "Completed",
+  "@completed": {
+    "description": "Completed status"
+  },
+  
+  "emergencyContact": "Emergency Contact",
+  "@emergencyContact": {
+    "description": "Emergency contact field label"
+  },
+  "description": "Description",
+  "@description": {
+    "description": "Description field label"
+  },
+  "notes": "Notes",
+  "@notes": {
+    "description": "Notes field label"
+  },
+  "details": "Details",
+  "@details": {
+    "description": "Details button text"
+  },
+  
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark mode setting label"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language setting label"
+  },
+  "aboutUs": "About Us",
+  "@aboutUs": {
+    "description": "About us page title"
+  },
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy page title"
+  },
+  "termsAndConditions": "Terms and Conditions",
+  "@termsAndConditions": {
+    "description": "Terms and conditions page title"
+  },
+  "contactUs": "Contact Us",
+  "@contactUs": {
+    "description": "Contact us page title"
+  },
+  "faq": "FAQ",
+  "@faq": {
+    "description": "FAQ page title"
+  },
+  
+  "noDataAvailable": "No data available",
+  "@noDataAvailable": {
+    "description": "No data message"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading message"
+  },
+  "error": "Error",
+  "@error": {
+    "description": "Error message"
+  },
+  "success": "Success",
+  "@success": {
+    "description": "Success message"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  }
+}
