@@ -49,10 +49,11 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               const SizedBox(height: AppSizes.paddingXL),
               
               // Instructions
-              Text(
-                AppStrings.enterVerificationCode,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: isDarkMode ? AppColors.darkTextSecondary : AppColors.textSecondary,
+              const Text(
+                'Enter the 6-digit verification code',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,
               ),
