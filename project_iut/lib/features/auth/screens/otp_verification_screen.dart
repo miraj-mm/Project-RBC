@@ -196,6 +196,20 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   }
 
   void _handleVerifyOTP() async {
+    // Ensure email is available before attempting verification
+    if (widget.email == null || widget.email!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Email not available. Please restart the sign-in process.'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        context.pop();
+      }
+      return;
+    }
+
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         _isLoading = true;
